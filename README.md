@@ -1,0 +1,2 @@
+# R_DataAnalysis
+In this project I intend to share a collection of data analysis notebooks built in R. Generally I build my notebooks in Python, but R has seemed to me (as for many data scientists) a powerful tool for data analysis and especially for data visualization. As I am more skilled in Python, I intend to keep on using both languages, choosing R for tasks whose main need is the visualization and interpretation of the data; whereas I will use Python in those whose focus is the application of machine learning; automation and export.
