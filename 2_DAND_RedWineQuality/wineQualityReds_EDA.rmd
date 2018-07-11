@@ -307,11 +307,11 @@ ggplot(data = wines, aes(x='total.sulfur.dioxide', y=total.sulfur.dioxide)) +
 ```
 
 From the boxplot it's clear to see there are two outliers whose amount of sulfur
-dioxide goes above 200. I will back to this point later, on the multivariate 
-analysis. For now, an important observation: **it is missing the sulfur dioxide
-measurement unit in the data set description.**
+dioxide goes above $200 {mg}/{dm}^3$. I will back to this point later during the
+multivariate analysis. 
 
 #### Chlorides
+This attribute stands for the amount of salt in the wine. 
 This attribute describes how acidic or basic a wine is on a scale from 0 (very 
 acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.  
 
