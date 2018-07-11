@@ -227,6 +227,7 @@ they fall in the density histogram, as follow:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.density.histQuality}
 ## How the "denstiy" attribute is distributed by quality? 
 ## The following references have helped me to build the graph I was looking for:
+## https://stackoverflow.com/questions/29957669/different-colour-palettes-for-two-different-colour-aesthetic-mappings-in-ggplot2
 ## https://stackoverflow.com/questions/1644661/add-a-vertical-line-with-different-intercept-for-each-panel-in-ggplot2
 ## https://stackoverflow.com/questions/6557977/how-do-i-add-the-mean-value-to-a-histogram-in-r
 ## http://www.sthda.com/english/wiki/colors-in-r
@@ -238,28 +239,51 @@ ggplot(wines) +
     scale_color_manual(values = brewer.pal(n=8, name="Set1"))
 ```
 
+Again, it's interesting to perceive how my initial idea was wrong: the wines 
+assigned with higher quality have lower density in average. Let's move forward
+with a similar analysis for the other attributes.
 
 
 #### Sulfur dioxide
-This attribute describes how acidic or basic a wine is on a scale from 0 (very 
-acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.  
-
-Again, our first step will be checking the values for this attribute using the
-*summary* command, whose values around 3.31 confirm the above statement. 
+As explained in the data set description, the *sulfur dioxide* $SO_2$ can be
+found in its free form, as a dissolved gas or as a bisulfite ion, or in bounded
+forms with other molecules. Besides its function to prevent microbial growth and
+wine oxidation, it is mostly undetectable in wine. Free concentrations over *50 
+ppm*, though, turns it evident in the nose and taste of wine.  
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulfur.summary}
-summary(wines$pH)
+summary(wines[c(7,8)])
+summary(wines$free.sulfur.dioxide, wines$total.sulfur.dioxide)
 ```
 
-Trying to see this same information through the histogram, in order to confirm 
-visually if it follows a normal distribution:  
+The summary above shows out there must be an outlier on data. Also, considering
+the previous statements, I believe the quality of wine is inversely proportional
+to the presence of sulfur dioxide, which I will seek to validate through the 
+charts:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulfur.graphs}
-## How the "pH" attribute is distributed?
-ggplot(aes(x=pH), data = wines) + 
-    geom_histogram()
+## Since I want to see in an unique plot both 'free' and 'total' sulfur dioxide, 
+## I tried first to make use of gridExtra library. However, I wanted to save
+## space using a common legend, reason why I switched to "ggpubr" library, as
+## suggested in https://stackoverflow.com/questions/13649473/add-a-common-legend-for-combined-ggplots.
+
+#install.packages("ggpubr")
+library(ggpubr)
+
+p0 <- ggplot(data = wines) + xlim(0,120) + scale_fill_brewer(type='div')
+p1 <- p0 + geom_histogram(aes(x=free.sulfur.dioxide, fill=as.factor(quality)))
+p2 <- p0 + geom_histogram(aes(x= total.sulfur.dioxide, fill=as.factor(quality)))
+
+p0log <- ggplot(data = wines) + scale_x_log10() + scale_fill_brewer(type='div')
+p3 <- p0log + geom_histogram(aes(x=free.sulfur.dioxide, fill=as.factor(quality)))
+p4 <- p0log + geom_histogram(aes(x= total.sulfur.dioxide, fill=as.factor(quality)))
+
+ggarrange(p1,p3,p2,p4,
+            ncol=2, nrow=2,
+            common.legend = TRUE, legend = 'bottom')
 ```
 
+For now, observing the chart above is 
 
 #### Chlorides
 This attribute describes how acidic or basic a wine is on a scale from 0 (very 
