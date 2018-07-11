@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # Red Wine EDA
 Tiago B.N. Silveira, MSc.  
 July 9, 2018  
@@ -19,14 +24,31 @@ library(ggplot2)
 library(dplyr)
 ```
 
-```{r echo=FALSE, Load_the_Data}
+```{r echo=FALSE,}
 # Load the Data
 wines <- read.csv("wineQualityReds.csv")
 ```
 
-> **Tip**: Before you create any plots, it is a good idea to provide a short
-introduction into the dataset that you are planning to explore. Replace this
-quoted text with that general information!
+This project is part of the Udacity Data Analysis Nanodegree and aims to apply 
+**exploratory data analysis (EDA)** techniques using R in order to explore 
+relationships in one to multiple variables, as well as exploring a given dataset
+for distributions, outliers, and anomalies. 
+
+EDA can thus be understood as the numerical and graphical examination of data 
+characteristics and relationships before formal, rigorous statistical analyses 
+are applied. EDA can lead to insights, which may uncover to other questions, 
+and eventually predictive models. As explained during the Udacity course, EDA 
+is also an important “line of defense” against bad data and is an opportunity 
+to notice that some assumptions or intuitions about a data set are violated.
+
+## 1. Understanding the data
+The first step before diving down EDA is to provide a short introduction into 
+the dataset we are planning to explore. In this case, from a list of available
+options I have choosed the "Wine Quality" dataset ([available at http://dx.doi.org/10.1016/j.dss.2009.05.016](http://dx.doi.org/10.1016/j.dss.2009.05.016)) 
+since I'm a wine lover. 
+
+Said that, and since our data is already loaded, the first thing to do is to 
+take a look at the very first line of the data set:
 
 ```{r echo=FALSE, Load_the_Data}
 # First look at dataset
@@ -34,41 +56,269 @@ head(wines)
 str(wines)
 ```
 
-# Univariate Plots Section
+To understand each data attributes, it's helpful to consult the data description
+where the following information is found:
+> The two datasets are related to red and white variants of the Portuguese "Vinho Verde" wine.
+   For more details, consult: http://www.vinhoverde.pt/en/ or the reference [Cortez et al., 2009].
+   Due to privacy and logistic issues, only physicochemical (inputs) and sensory (the output) variables 
+   are available (e.g. there is no data about grape types, wine brand, wine selling price, etc.).
 
-> **Tip**: In this section, you should perform some preliminary exploration of
-your dataset. Run some summaries of the data and create univariate plots to
-understand the structure of the individual variables in your dataset. Don't
-forget to add a comment after each plot or closely-related group of plots!
-There should be multiple code chunks and text sections; the first one below is
-just to help you get started.
+It's also important to notice that besides the target feature is the wine 
+quality, the dataset is unbalanced regarding to it. It means there are few 
+excellent or poor wines. This issue will be addressed later. For now, let's 
+start taking a look at each attribute in order to understand our data in deepen
+way.
 
-```{r echo=FALSE, Univariate_Plots}
 
+## 2. Univariate Analysis
+In order to catch the meaning of each variable in the dataset, in this section 
+we will seek to explore each attribute in what is known as *univariate analysis*.
+The most relevant attributes of this dataset are consolidated at the end of this
+section. 
+
+### A closer look at each attribute
+#### Quality
+Since it's the target attribute, there is any doubt about its relevance. That
+way, let us first understand its distribution.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.quality}
+ggplot(aes(x=quality), data = wines) + 
+    geom_histogram()
 ```
 
-> **Tip**: Make sure that you leave a blank line between the start / end of
-each code block and the end / start of your Markdown text so that it is
-formatted nicely in the knitted text. Note as well that text on consecutive
-lines is treated as a single space. Make sure you have a blank line between
-your paragraphs so that they too are formatted for easy readability.
+The first thing to notice is that there are few *really bad wines*, i.e. those
+whose quality is below 3. In the same way, there are few *really good wines*, i.e. 
+those whose quality is above 8. It's also effort to notice this distribution
+seems like a normal one.  
 
-# Univariate Analysis
+Considering this is the target attribute, all the upcoming univariate analysis
+will be in relation to this attribute. Due to it we need first to transform this
+*int type* attribute into *factor type*:
 
+```{r echo=TRUE, univariate.quality.factor}
+## Transforming the int quality attribute into a discrete factor one:
+wines$quality.factor <- factor(wines$quality)
+```
+
+
+
+#### Alcohol
+This attribute refers to the percent alcohol content of the wine (% of volume).
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.alcohol}
+## How the "alcohol" attribute is distributed?
+ggplot(aes(x=alcohol), data = wines) + 
+    geom_histogram(binwidth = 0.2)
+
+## How the quality is related to the alcohol attribute?
+ggplot(aes(x=alcohol, fill=quality.factor), data = wines) + 
+    geom_histogram() + 
+    scale_y_log10() + 
+    facet_wrap(~ quality.factor)
+```
+
+#### Sulphates
+Accordingly to the data set documentation, it refers to a wine additive which 
+can contribute to sulfur dioxide gas (S02) levels. This last acts as an 
+antimicrobial and antioxidant. The sulphates levels are measured by the 
+concentration of *potassium sulphate* in *g/dm³*.  
+
+To find out the range of sulphates in the evaluated wines, we can just summarize
+this attribute, as follow:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulphate.summary}
+summary(wines$sulphates)
+```
+
+As we did before, the next graphs show how this attribute is distributed along 
+our data and how it's related to our target variable:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulphate.charts}
+## How the "sulphate" attribute is distributed?
+ggplot(aes(x=sulphates), data = wines) + 
+    geom_histogram()
+
+## How the quality is related to the sulphate attribute?
+ggplot(aes(x=sulphates, fill=quality.factor), data = wines) + 
+    geom_histogram() + 
+    scale_y_log10() + 
+    facet_wrap(~ quality.factor)
+```
+
+The values of this attribute are distributed around the mean and there is any 
+clear correlation to the wine quality, at least at this first glance. Anyway,
+the information provided by the first chart was already obtained from *summary*, 
+although from the histogram it becomes clear the almost normal distribution with
+right-skewed values. 
+
+#### pH
+This attribute describes how acidic or basic a wine is on a scale from 0 (very 
+acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.  
+
+Again, our first step will be checking the values for this attribute using the
+*summary* command, whose values around 3.31 confirm the above statement. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.ph.summary}
+summary(wines$pH)
+```
+
+Trying to see this same information through the histogram, in order to confirm 
+visually if it follows a normal distribution:  
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.ph.hist}
+## How the "pH" attribute is distributed?
+ggplot(aes(x=pH), data = wines) + 
+    geom_histogram()
+```
+
+As a wine connoisseur, I believe the wines that are best evaluated have a higher
+pH. To confirm this, I will plot again the pH distribution according to the 
+quality assessment by winemakers:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.ph.histQuality}
+## How the quality is related to the wine pH?
+ggplot(aes(x=pH, fill=quality.factor), data = wines) + 
+    geom_histogram() + 
+    scale_y_log10() + 
+    facet_wrap(~ quality.factor)
+```
+
+From the last chart I see I was wrong. Besides my personal taste goes for wines
+not so acidic, the pH can't be directly related to the quality. 
+
+#### Density
+The wine densities vary accordingly to density of the water and on the percent
+alcohol and sugar content. I particularly prefer full-bodied wines to those 
+lighter ones, charactheristics I immediately associate to density. But as far as
+I know, there are both strong and soft great wines, in the way I don't think 
+density would be a decision attribute for wine quality. Let's check?
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.density.summary}
+summary(wines$density)
+```
+
+From the summary information, the variance is about 0.01 or 1%. It means a
+variation of just *1g* for each *100ml* of wine. I wonder if humans are able to
+perceive such small variance, which has lead me to an interesting reference 
+[[2]](#[2]) where it is said that the term "body" or "weight" of a wine, besides
+is almost always a desirable aspect, is a wine property not fully defined. In
+the same reference, what called my attention is that *sweetness* and the 
+presence of *glycerol* can increase the perception of body, while acidity 
+appears to reduce the perception of body. This description has clarified my 
+misconfusion around *wine density*, in the way we now follow with the analysis:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.density.hist}
+## How the "pH" attribute is distributed?
+ggplot(aes(x=density), data = wines) + 
+    geom_histogram()
+```
+
+Just for curiosity, I'd like to see where the mean density for each quality
+category stands on the chart above. In order to do this, I should first group
+the data I'm interested in (using the mean):
+
+```{r echo=FALSE}
+aggregate(wines['density'], wines['quality'], mean)
+```
+
+After calculating the density mean for each quality level, I'd like to see where 
+they fall in the density histogram, as follow:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.density.histQuality}
+## How the "denstiy" attribute is distributed by quality? 
+## The following references have helped me to build the graph I was looking for:
+## https://stackoverflow.com/questions/1644661/add-a-vertical-line-with-different-intercept-for-each-panel-in-ggplot2
+## https://stackoverflow.com/questions/6557977/how-do-i-add-the-mean-value-to-a-histogram-in-r
+## http://www.sthda.com/english/wiki/colors-in-r
+library("RColorBrewer")
+ggplot(wines) +
+    geom_histogram(aes(x=density)) +
+    geom_vline(data = aggregate(wines['density'], wines['quality'], mean),
+               mapping = aes(xintercept=density, color=as.factor(quality))) + 
+    scale_color_manual(values = brewer.pal(n=8, name="Set1"))
+```
+
+
+
+#### Sulfur dioxide
+This attribute describes how acidic or basic a wine is on a scale from 0 (very 
+acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.  
+
+Again, our first step will be checking the values for this attribute using the
+*summary* command, whose values around 3.31 confirm the above statement. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulfur.summary}
+summary(wines$pH)
+```
+
+Trying to see this same information through the histogram, in order to confirm 
+visually if it follows a normal distribution:  
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulfur.graphs}
+## How the "pH" attribute is distributed?
+ggplot(aes(x=pH), data = wines) + 
+    geom_histogram()
+```
+
+
+#### Chlorides
+This attribute describes how acidic or basic a wine is on a scale from 0 (very 
+acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.  
+
+Again, our first step will be checking the values for this attribute using the
+*summary* command, whose values around 3.31 confirm the above statement. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.chlorides.summary}
+summary(wines$pH)
+```
+
+Trying to see this same information through the histogram, in order to confirm 
+visually if it follows a normal distribution:  
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.chlorides.hist}
+## How the "pH" attribute is distributed?
+ggplot(aes(x=pH), data = wines) + 
+    geom_histogram()
+```
+
+
+#### Acidity
+This attribute describes how acidic or basic a wine is on a scale from 0 (very 
+acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.  
+
+Again, our first step will be checking the values for this attribute using the
+*summary* command, whose values around 3.31 confirm the above statement. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.acidity.summary}
+summary(wines$pH)
+```
+
+Trying to see this same information through the histogram, in order to confirm 
+visually if it follows a normal distribution:  
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.acidity.hist}
+## How the "pH" attribute is distributed?
+ggplot(aes(x=pH), data = wines) + 
+    geom_histogram()
+```
+
+
+
+### Findings 
 > **Tip**: Now that you've completed your univariate explorations, it's time to
 reflect on and summarize what you've found. Use the questions below to help you
 gather your observations and add your own if you have other thoughts!
 
-### What is the structure of your dataset?
+#### What is the structure of your dataset?
 
-### What is/are the main feature(s) of interest in your dataset?
+#### What is/are the main feature(s) of interest in your dataset?
 
-### What other features in the dataset do you think will help support your \
+#### What other features in the dataset do you think will help support your \
 investigation into your feature(s) of interest?
 
-### Did you create any new variables from existing variables in the dataset?
+#### Did you create any new variables from existing variables in the dataset?
 
-### Of the features you investigated, were there any unusual distributions? \
+#### Of the features you investigated, were there any unusual distributions? \
 Did you perform any operations on the data to tidy, adjust, or change the form \
 of the data? If so, why did you do this?
 
@@ -170,3 +420,15 @@ future work that could be done with the dataset.
 
 > **Tip**: Don't forget to remove this, and the other **Tip** sections before
 saving your final work and knitting the final report!
+
+
+## References
+[1] P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
+  Modeling wine preferences by data mining from physicochemical properties.
+  In Decision Support Systems, Elsevier, 47(4):547-553. ISSN: 0167-9236.  
+  Available at http://dx.doi.org/10.1016/j.dss.2009.05.016
+  
+<a name='[2]'></a>[2] Palmer, S.E. (1999). *Vision Science: Photons to 
+Phenomenology*. MIT Press. http://scitechconnect.elsevier.com/wp-content/uploads/2014/06/main-38.pdf
+
+(Ver se vou usar essa referência: https://www.jstor.org/stable/10.7312/shep17700)
