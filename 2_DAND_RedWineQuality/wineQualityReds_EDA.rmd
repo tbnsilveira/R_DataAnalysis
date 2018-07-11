@@ -54,7 +54,11 @@ take a look at the very first line of the data set:
 # First look at dataset
 head(wines)
 str(wines)
+summary(wines)
 ```
+
+We already knew it is a tidy dataset. Anyway, it was possible to check there is
+any missing value (NA values, for example) through the *summary* output.
 
 To understand each data attributes, it's helpful to consult the data description
 where the following information is found:
@@ -253,7 +257,6 @@ ppm*, though, turns it evident in the nose and taste of wine.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulfur.summary}
 summary(wines[c(7,8)])
-summary(wines$free.sulfur.dioxide, wines$total.sulfur.dioxide)
 ```
 
 The summary above shows out there must be an outlier on data. Also, considering
@@ -283,7 +286,30 @@ ggarrange(p1,p3,p2,p4,
             common.legend = TRUE, legend = 'bottom')
 ```
 
-For now, observing the chart above is 
+In the chart above I intended to plot the histogram both for the free form and
+the total amount of sulfur dioxide. The column on the left the histograms are 
+shown in a linear x-axis, from which is clear to observe that the total amount 
+follows the same shape as for the free form, with a higher number as expected.
+This graphic layout, though, does not allow to compare how the sulfur dioxide is 
+present considering the wine quality. For this reason, the column on the right 
+shows the same data now in a logarithmic x-axis, which in turns shows this 
+attribute is spread out in the same way for all quality assignments.  
+
+Since there are some outliers, as noticed in the beggining when summarizing the 
+data, I will make use of a bloxplot to check how distant it is (or they are)
+from the mean:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulfur.boxplot}
+## Reference for a univariate boxplot using ggplot2:
+## https://stackoverflow.com/questions/25049104/why-does-a-boxplot-in-ggplot-requires-axis-x-and-y
+ggplot(data = wines, aes(x='total.sulfur.dioxide', y=total.sulfur.dioxide)) + 
+    geom_boxplot()
+```
+
+From the boxplot it's clear to see there are two outliers whose amount of sulfur
+dioxide goes above 200. I will back to this point later, on the multivariate 
+analysis. For now, an important observation: **it is missing the sulfur dioxide
+measurement unit in the data set description.**
 
 #### Chlorides
 This attribute describes how acidic or basic a wine is on a scale from 0 (very 
