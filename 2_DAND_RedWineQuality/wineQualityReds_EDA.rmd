@@ -311,28 +311,48 @@ dioxide goes above $200 {mg}/{dm}^3$. I will back to this point later during the
 multivariate analysis. 
 
 #### Chlorides
-This attribute stands for the amount of salt in the wine. 
-This attribute describes how acidic or basic a wine is on a scale from 0 (very 
-acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.  
+This attribute stands for the amount of salt (*sodium chloride*) in the wine, 
+measured in $g/{dm}^3$, i.e. in grams per liters. 
 
-Again, our first step will be checking the values for this attribute using the
-*summary* command, whose values around 3.31 confirm the above statement. 
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.chlorides.charts}
+## How the "chlorides" are present in the wines?
+ggplot(data = wines) +
+    geom_histogram(aes(x=chlorides, fill=as.factor(quality))) +
+    scale_fill_brewer(type='div') + 
+    scale_y_log10()
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.chlorides.summary}
-summary(wines$pH)
+## In this plot I tried to check how it stands horizontally
+ggplot(data = wines, aes(x='chlorides', y=chlorides)) + 
+    geom_boxplot() + coord_flip()
 ```
 
-Trying to see this same information through the histogram, in order to confirm 
-visually if it follows a normal distribution:  
+From the boxplot we notice there are outliers in the right-skewed chlorides 
+distribution. From the histogram, it's interesting to observe that the lowest 
+and highest quality levels are around the same salt values. 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.chlorides.hist}
-## How the "pH" attribute is distributed?
-ggplot(aes(x=pH), data = wines) + 
-    geom_histogram()
+
+#### Residual sugar
+This attribute stand for the amount of sugar remaining after fermentation stops. 
+Accordingly to the dataset documentation, it's rare to find wines with less than
+1 gram/liter (or $g/{dm}^3$ in the International System of Units - SI). On the
+other hand, wines with more than 45 grams/liter of sugare are categorized as 
+sweet.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.acidity}
+ggplot(data = wines) +
+    geom_histogram(aes(x=residual.sugar, fill=as.factor(quality))) +
+    scale_fill_brewer(type='div') + 
+    scale_y_log10()
 ```
 
+Analyzing the histogram above, even though there are some outliers, none of them
+is above $45 g/{dm}^3$, which means that the whole dataset is about dry wines.
 
 #### Acidity
+1 - fixed acidity (tartaric acid - g / dm^3)
+   2 - volatile acidity (acetic acid - g / dm^3)
+   3 - citric acid (g / dm^3)
+
 This attribute describes how acidic or basic a wine is on a scale from 0 (very 
 acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.  
 
@@ -351,7 +371,6 @@ visually if it follows a normal distribution:
 ggplot(aes(x=pH), data = wines) + 
     geom_histogram()
 ```
-
 
 
 ### Findings 
