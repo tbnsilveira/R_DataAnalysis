@@ -458,12 +458,6 @@ to check how they relate to each other:
 In this section let's take a look at the relationships between the variables we
 find out important and the previous analysis.
 
-> **Tip**: Based on what you saw in the univariate plots, what relationships
-between variables might be interesting to look at in this section? Don't limit
-yourself to relationships between a main output feature and one of the
-supporting variables. Try to look at relationships between supporting variables
-as well.
-
 ### Alcohol Vs. Quality
 
 ```{r echo=FALSE, bivariate.alcohol-quality.scatter}
@@ -521,21 +515,36 @@ ggplot(aes(x = pH, y = density), data = wines) +
   facet_wrap( ~ quality) 
 ```
 
+From the scatterplots above we can see a weak negative correlation between 
+density and pH, ie, the higher the pH the lower the density. Beyond this there 
+is no other relevant information from these graphs, since the correlation is 
+somehow equivalent for all levels of quality.  
+
+A future research may include the pH and density corresponding to the main 
+hydrographic basins of the regions where the wines are produced, also 
+associating these attributes with the "body" perception.
 
 
-# Bivariate Analysis
+### Sulfur Dioxide Vs. Chlorides
 
-> **Tip**: As before, summarize what you found in your bivariate explorations
-here. Use the questions below to guide your discussion.
+```{r bivariate.sulfur-chlorides, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+ggplot(aes(x = total.sulfur.dioxide, y = chlorides), data = wines) + 
+  geom_point(alpha = 0.35, pch = 1) + 
+  geom_smooth(method = loess) + 
+  scale_x_log10() + 
+  #xlim(0,100) +
+  facet_wrap( ~ quality)
+```
 
-### Talk about some of the relationships you observed in this part of the \
-investigation. How did the feature(s) of interest vary with other features in \
-the dataset?
+To analyse these attributes I choosed the total sulfur dioxide, since we have 
+found before the free sulfur dioxide distribution has the same shape. Taking a 
+look at the figure, specifically in chart 7, we can notice an outlier measure 
+of sulfur dioxide around $300 mg/{dm}~3$. In order to avoid it impacting the 
+charts I chose to apply the logarithm, although I could also just adjust the 
+limits of the x-axis. 
 
-### Did you observe any interesting relationships between the other features \
-(not the main feature(s) of interest)?
-
-### What was the strongest relationship you found?
+Regarding the interpretation of the graph, it becomes evident that there is no 
+correlation between these two variables.
 
 
 ## 4. Multivariate Analaysis
