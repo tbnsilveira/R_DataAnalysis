@@ -466,42 +466,49 @@ as well.
 
 ### Alcohol Vs. Quality
 
-```{r echo=FALSE, Bivariate_Plots}
+```{r echo=FALSE, bivariate.alcohol-quality.scatter}
 ggplot(data = wines, aes(x=alcohol, y=quality)) + 
   geom_point(alpha = 1/5, color='blue') + 
   #geom_jitter(alpha = 1/5.) + 
   geom_smooth(method = 'lm', color = 'red')
 ```
+
 As it was expected to, there is some correlation between the alcohol percentage 
 in the wine and its quality. However, I think this information was already 
 available from the histograms in the univariate analysis. Furthermore, since
-many quality levels are assigned to 11% of alcohol, the relevant correlation 
+many quality levels are assigned to 11% of alcohol, relevant correlation 
 among alcohol and quality arises only when we are dealing with the bordering
 values.  
 
-To check it out, I will build a table with the correlation among quality and 
-alcohol for each one of the quality values:
+To check it out, I will build a radar chart with the alcohol statistics for each
+one of the quality levels:
 
-```{r}
-## values whose quality is higher than 7 together:
-alcQuality <- group_by(wines, quality)
-alcQuality_corr <- summarise(alcQuality,
-                             alcohol_mean = mean(alcohol),
-                             alcohol_sd = sd(alcohol),
-                             )#quality_corr = cor.test(alcohol, quality, method = 'pearson'))
-# best <- group_by(subset(wines, quality >= 7), quality)
-acidities <- summarise(bestAcid, 
-          fixed_min = min(fixed.acidity),
-          fixed_mean = mean(fixed.acidity),
-          fixed_max = max(fixed.acidity),
-          volat_min = min(volatile.acidity),
-          volat_mean = mean(volatile.acidity),
-          volat_max = max(volatile.acidity),
-          citric_min = min(citric.acid),
-          citric_mean = mean(citric.acid),
-          citric_max = max(citric.acid))
+```{r bivariate.alcohol-quality.radar, message=FALSE, warning=FALSE}
+## First, we need to select the appropriate data:
+alcohol_quality <- wines %>%
+  group_by(quality) %>%
+  summarise(alcohol_mean = mean(alcohol))
+
+## Since ggplot2 does not contain a ready function for radar chart, I choosed to
+## use the radarchart function from "fmsb" package:
+#install.packages('fmsb')
+library(fmsb)
+
+## In order to apply my data to radarchart, I need to transpose it before:
+alcohol_quality <- as.data.frame(t(alcohol_quality))
+# The code above set the dataframe name accordingly to the first dataframe row:
+names(alcohol_quality) <- paste('Quality',alcohol_quality[1,], sep = '-')
+# We only want the second line, ie, we need to drop the first row:
+alcohol_quality <- alcohol_quality[2,]
+
+## Now plotting the radarchart:
+radarchart(fuck, axistype=1, calcex = 0.8, vlcex=0.9,
+           caxislabels = c('9.6%','','11%','','12.4%'),
+           title="Percentage of alcohol by quality level")
 ```
 
+From the chart above it becomes really clear that the wines assigned with a 
+better quality in average have higher alcohol percentages. 
 
 ### pH Vs. Density
 
