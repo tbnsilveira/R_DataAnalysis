@@ -349,50 +349,114 @@ Analyzing the histogram above, even though there are some outliers, none of them
 is above $45 g/{dm}^3$, which means that the whole dataset is about dry wines.
 
 #### Acidity
-1 - fixed acidity (tartaric acid - g / dm^3)
-   2 - volatile acidity (acetic acid - g / dm^3)
-   3 - citric acid (g / dm^3)
+There are three attributes in the dataset related to the wine acidity, all of
+them measured in $g/{dm}^3$:  
+* **Fixed acidity**: normally refers to *tartaric acid* which are involved with 
+wine and do not evaporate readily.  
+* **Volatile acidity**: the amount of acetic acid in wine, which at too high 
+levels can be unpleasent, tasting like a vinegar.  
+* **Citric acid**: usually found in small quantities, citric acid can add some 
+*freshness* and flavor to wines. 
 
-This attribute describes how acidic or basic a wine is on a scale from 0 (very 
-acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.  
-
-Again, our first step will be checking the values for this attribute using the
-*summary* command, whose values around 3.31 confirm the above statement. 
+Considering the description above, it becomes clear the difference among the
+acidities type and their impact on the wine quality. For this reason, the next 
+charts plot not only a histogram for each acidity type, but also the minimum, 
+maximum and mean values for each one considering only the wines assigned with a
+quality level higher than 7. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.acidity.summary}
-summary(wines$pH)
+## Subseting the data. Instead of using "group_by", I want to summarize all the
+## values whose quality is higher than 7 together:
+bestAcid <- subset(wines, quality >= 7)
+# best <- group_by(subset(wines, quality >= 7), quality)
+acidities <- summarise(bestAcid, 
+          fixed_min = min(fixed.acidity),
+          fixed_mean = mean(fixed.acidity),
+          fixed_max = max(fixed.acidity),
+          volat_min = min(volatile.acidity),
+          volat_mean = mean(volatile.acidity),
+          volat_max = max(volatile.acidity),
+          citric_min = min(citric.acid),
+          citric_mean = mean(citric.acid),
+          citric_max = max(citric.acid))
+## The summarized will be highlighted in the correspondent histogram.
+
+p0 <- ggplot(data = wines) #+ xlim(0,120) + scale_fill_brewer(type='div')
+p1 <- p0 + geom_histogram(aes(x=fixed.acidity, fill=as.factor(quality))) +
+    geom_vline(xintercept=acidities$fixed_min,alpha=0.7,linetype='dotted') +
+    geom_vline(xintercept=acidities$fixed_mean,alpha=0.8,linetype='dotdash') +
+    geom_vline(xintercept=acidities$fixed_max,alpha=0.7,linetype='dotted')
+p2 <- p0 + geom_histogram(aes(x=volatile.acidity, fill=as.factor(quality))) + 
+    geom_vline(xintercept=acidities$volat_min,alpha=0.7,linetype='dotted') +
+    geom_vline(xintercept=acidities$volat_mean,alpha=0.8,linetype='dotdash') +
+    geom_vline(xintercept=acidities$volat_max,alpha=0.7,linetype='dotted')
+p3 <- p0 + geom_histogram(aes(x=citric.acid, fill=as.factor(quality))) + 
+    geom_vline(xintercept=acidities$citric_min,alpha=0.7,linetype='dotted') +
+    geom_vline(xintercept=acidities$citric_mean,alpha=0.8,linetype='dotdash') +
+    geom_vline(xintercept=acidities$citric_max,alpha=0.7,linetype='dotted')
+
+## Drawing text to explain the min-mean-max lines
+## Reference: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
+text <- paste('The dotted lines to the left and right of each histogram',
+              'represent the minimum and maximum values, respectively, for the',
+              'given attribute in all wines whose assigned quality is greater',
+              'than or equal to 7. The centerlines represent the mean values.', 
+              sep = ' ')
+text.p <- ggparagraph(text = text, face = "italic", size = 8, color = "black")
+
+## Arranging the plots on the same page
+ggarrange(p1,p2,p3,text.p,
+            ncol=1, nrow=4,
+            common.legend = TRUE, legend = 'right')
 ```
 
-Trying to see this same information through the histogram, in order to confirm 
-visually if it follows a normal distribution:  
+The histograms above seemed reasonable to me. What called my attention, though, 
+are the maximum values for the wines assigned with high quality level. Specially
+when considering the *volatile acidity*, which from description is the attribute
+responsible for an unpleasent tasting, I expected the maximum value to be lower.
+In [[2]](#[2]) there are many discussions regarding acidity in wine, but the 
+typification differs from the presented in the data description. This is an
+aspect of the data that should be investigate in more detail.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.acidity.hist}
-## How the "pH" attribute is distributed?
-ggplot(aes(x=pH), data = wines) + 
-    geom_histogram()
-```
+### Findings from univariate analysis
+In this Section I explored the *Red Wine dataset* built from a scientific 
+research about whose objective was to model wine prefences by data mining from
+physicochemical properties [[1]](#[1]).  
+
+This first analysis, called univariate because it considers only one attribute 
+at a time, was essential since it enabled an understanding of the subject to be 
+explored, the available data, and the desired information (the relationship 
+between the measured attributes and the best quality assignments). Finally, 
+knowing the meaning of each attribute and its relation to the evaluated 
+"phenomenon" is essential for obtaining insights and a consequent successful 
+analysis.
+
+At this point, we are already able to select some important attributes in order
+to check how they relate to each other:  
+  
+  * The **quality** atribute will be our *targeted variable* throughout the 
+  whole analysis. As a premise, this analysis objective is to find out which
+  attributes are related to wines of better quality, ie, those assigned with 
+  a quality level $\geq 7$.  
+  
+  * Considering the premise above and the findings of the univariate analysis,
+  **alcohol** becomes an important feature, since it clearly separates high
+  quality wines from the low quality ones.  
+  
+  * The **pH** and **density** attributes become relevant for a further analysis
+  since they are related to the *body* sensation, as explored above.  
+  
+  * Some other attributes, such as **sulfur dioxide** and **chlorides**, seem 
+  to be interesting in some aspect and will be explored in the multivariate 
+  analysis.  
+  
+  * The acidity is very interesting due to its perceived sensations. Besides 
+  there is no reference values for them, the outliers should be explored.  
 
 
-### Findings 
-> **Tip**: Now that you've completed your univariate explorations, it's time to
-reflect on and summarize what you've found. Use the questions below to help you
-gather your observations and add your own if you have other thoughts!
-
-#### What is the structure of your dataset?
-
-#### What is/are the main feature(s) of interest in your dataset?
-
-#### What other features in the dataset do you think will help support your \
-investigation into your feature(s) of interest?
-
-#### Did you create any new variables from existing variables in the dataset?
-
-#### Of the features you investigated, were there any unusual distributions? \
-Did you perform any operations on the data to tidy, adjust, or change the form \
-of the data? If so, why did you do this?
-
-
-# Bivariate Plots Section
+## 3. Bivariate Analysis
+In this section let's take a look at the relationships between the variables we
+find out important and the previous analysis.
 
 > **Tip**: Based on what you saw in the univariate plots, what relationships
 between variables might be interesting to look at in this section? Don't limit
@@ -400,9 +464,55 @@ yourself to relationships between a main output feature and one of the
 supporting variables. Try to look at relationships between supporting variables
 as well.
 
-```{r echo=FALSE, Bivariate_Plots}
+### Alcohol Vs. Quality
 
+```{r echo=FALSE, Bivariate_Plots}
+ggplot(data = wines, aes(x=alcohol, y=quality)) + 
+  geom_point(alpha = 1/5, color='blue') + 
+  #geom_jitter(alpha = 1/5.) + 
+  geom_smooth(method = 'lm', color = 'red')
 ```
+As it was expected to, there is some correlation between the alcohol percentage 
+in the wine and its quality. However, I think this information was already 
+available from the histograms in the univariate analysis. Furthermore, since
+many quality levels are assigned to 11% of alcohol, the relevant correlation 
+among alcohol and quality arises only when we are dealing with the bordering
+values.  
+
+To check it out, I will build a table with the correlation among quality and 
+alcohol for each one of the quality values:
+
+```{r}
+## values whose quality is higher than 7 together:
+alcQuality <- group_by(wines, quality)
+alcQuality_corr <- summarise(alcQuality,
+                             alcohol_mean = mean(alcohol),
+                             alcohol_sd = sd(alcohol),
+                             )#quality_corr = cor.test(alcohol, quality, method = 'pearson'))
+# best <- group_by(subset(wines, quality >= 7), quality)
+acidities <- summarise(bestAcid, 
+          fixed_min = min(fixed.acidity),
+          fixed_mean = mean(fixed.acidity),
+          fixed_max = max(fixed.acidity),
+          volat_min = min(volatile.acidity),
+          volat_mean = mean(volatile.acidity),
+          volat_max = max(volatile.acidity),
+          citric_min = min(citric.acid),
+          citric_mean = mean(citric.acid),
+          citric_max = max(citric.acid))
+```
+
+
+### pH Vs. Density
+
+```{r bivariate.ph-density, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+ggplot(aes(x = pH, y = density), data = wines) + 
+  geom_point(alpha = 0.35, pch = 1) + 
+  geom_smooth(method = loess) + 
+  facet_wrap( ~ quality) 
+```
+
+
 
 # Bivariate Analysis
 
@@ -419,7 +529,7 @@ the dataset?
 ### What was the strongest relationship you found?
 
 
-# Multivariate Plots Section
+## 4. Multivariate Analaysis
 
 > **Tip**: Now it's time to put everything together. Based on what you found in
 the bivariate plots section, create a few multivariate plots to investigate
@@ -497,7 +607,6 @@ saving your final work and knitting the final report!
   In Decision Support Systems, Elsevier, 47(4):547-553. ISSN: 0167-9236.  
   Available at http://dx.doi.org/10.1016/j.dss.2009.05.016
   
-<a name='[2]'></a>[2] Palmer, S.E. (1999). *Vision Science: Photons to 
-Phenomenology*. MIT Press. http://scitechconnect.elsevier.com/wp-content/uploads/2014/06/main-38.pdf
+<a name='[2]'></a>[2] ARRUMAR. LIVRO SOBRE VINHOS.. MIT Press. http://scitechconnect.elsevier.com/wp-content/uploads/2014/06/main-38.pdf
 
 (Ver se vou usar essa referência: https://www.jstor.org/stable/10.7312/shep17700)
