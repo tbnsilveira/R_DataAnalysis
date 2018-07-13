@@ -500,9 +500,11 @@ alcohol_quality <- as.data.frame(t(alcohol_quality))
 names(alcohol_quality) <- paste('Quality',alcohol_quality[1,], sep = '-')
 # We only want the second line, ie, we need to drop the first row:
 alcohol_quality <- alcohol_quality[2,]
+# In order to use the radarchart, we need to add the minmax values as rows:
+alcohol_quality=rbind(rep(12.4,6) , rep(9.6,6) , alcohol_quality)
 
 ## Now plotting the radarchart:
-radarchart(fuck, axistype=1, calcex = 0.8, vlcex=0.9,
+radarchart(alcohol_quality, axistype=1, calcex = 0.8, vlcex=0.9,
            caxislabels = c('9.6%','','11%','','12.4%'),
            title="Percentage of alcohol by quality level")
 ```
