@@ -456,7 +456,32 @@ to check how they relate to each other:
 
 ## 3. Bivariate Analysis
 In this section let's take a look at the relationships between the variables we
-find out important and the previous analysis.
+find out important and the previous analysis. To provide an overview of the 
+correlation among variables, I will first plot the scatterplot pairs of the 
+attributes we may be interested in:
+
+```{r echo=FALSE, bivariate.overview}
+library(GGally)
+theme_set(theme_minimal())
+
+## Defining the variables we will explore:
+variables <- c('alcohol','pH','density','chlorides',
+               'volatile.acidity','quality')
+
+## Plotting ggpairs for the selected attributed:
+ggpairs(wines[variables], aes(alpha=0.3))
+
+## I experimented adding jitter, but the result was not satisfactory:
+#ggpairs(wines[variables], aes(alpha=0.3), lower = list(continuous=wrap("points", position="jitter")))
+```
+
+The pair plots above summarize all the information we have gotten until now:  
+- The unbalanced distribution of quality, ie, there are more wines classified as 
+5 or 6 than those below and above these values.  
+- Quality is negatively correlated to the volatile acidity.  
+- Quality is positively correlated to the alcohol percentage.
+- Other attributes that present some correlations are pH, density and chlorides, 
+although not strong ones.
 
 ### Alcohol Vs. Quality
 
@@ -477,7 +502,7 @@ values.
 To check it out, I will build a radar chart with the alcohol statistics for each
 one of the quality levels:
 
-```{r bivariate.alcohol-quality.radar, message=FALSE, warning=FALSE}
+```{r bivariate.alcohol-quality.radar, echo=FALSE, message=FALSE, warning=FALSE}
 ## First, we need to select the appropriate data:
 alcohol_quality <- wines %>%
   group_by(quality) %>%
