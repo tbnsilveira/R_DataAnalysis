@@ -479,9 +479,9 @@ The pair plots above summarize all the information we have gotten until now:
 - The unbalanced distribution of quality, ie, there are more wines classified as 
 5 or 6 than those below and above these values.  
 - Quality is negatively correlated to the volatile acidity.  
-- Quality is positively correlated to the alcohol percentage.
+- Quality is positively correlated to the alcohol percentage.  
 - Other attributes that present some correlations are pH, density and chlorides, 
-although not strong ones.
+although not strong ones.  
 
 ### Alcohol Vs. Quality
 
