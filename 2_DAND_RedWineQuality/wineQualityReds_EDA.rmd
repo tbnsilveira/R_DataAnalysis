@@ -44,7 +44,7 @@ to notice that some assumptions or intuitions about a data set are violated.
 ## 1. Understanding the data
 The first step before diving down EDA is to provide a short introduction into 
 the dataset we are planning to explore. In this case, from a list of available
-options I have choosed the "Wine Quality" dataset ([available at http://dx.doi.org/10.1016/j.dss.2009.05.016](http://dx.doi.org/10.1016/j.dss.2009.05.016)) 
+options I have chosen the "Wine Quality" dataset ([available at http://dx.doi.org/10.1016/j.dss.2009.05.016](http://dx.doi.org/10.1016/j.dss.2009.05.016)) 
 since I'm a wine lover. 
 
 Said that, and since our data is already loaded, the first thing to do is to 
@@ -193,7 +193,7 @@ not so acidic, the pH can't be directly related to the quality.
 #### Density
 The wine densities vary accordingly to density of the water and on the percent
 alcohol and sugar content. I particularly prefer full-bodied wines to those 
-lighter ones, charactheristics I immediately associate to density. But as far as
+lighter ones, characteristics I immediately associate to density. But as far as
 I know, there are both strong and soft great wines, in the way I don't think 
 density would be a decision attribute for wine quality. Let's check?
 
@@ -574,31 +574,55 @@ correlation between these two variables.
 
 ## 4. Multivariate Analaysis
 
-> **Tip**: Now it's time to put everything together. Based on what you found in
-the bivariate plots section, create a few multivariate plots to investigate
-more complex interactions between variables. Make sure that the plots that you
-create here are justified by the plots you explored in the previous section. If
-you plan on creating any mathematical models, this is the section where you
-will do that.
+Most of the information we could gather from the dataset variables were already 
+obtained in the previous section. In this way, in this section I intend to build
+a linear regression model that could allow us to estimate the wine quality from 
+a given set of attributes.
 
-```{r echo=FALSE, Multivariate_Plots}
-
+```{r echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+## Reference: https://github.com/nicolasfguillaume/Exploratory-Data-Analysis-with-R/blob/master/Lesson_6.md
+library(scales)
+library(memisc)
+## use the I() operator (='as is') which inhibits interpretation/conversion of 
+## objects. By protecting the expression, ensures it is interpreted in the 
+## obvious arithmetical way.
+m1 <- lm(I(quality) ~ I(alcohol), data = wines)
+m2 <- update(m1, ~ . + density)   # adding the carat variable to the regression
+m3 <- update(m2, ~ . + pH)
+m4 <- update(m3, ~ . + volatile.acidity)
+mtable(m1, m2, m3, m4)
 ```
 
-# Multivariate Analysis
+The resultant model was not as good as I expected to, with a final R-square 
+measure of 34%. Since the objective of this project was limited on EDA, I will 
+not try to engineer any feature in order to reach better results, but instead I
+will discuss some aspects that may explain the model insuccess: 
 
-### Talk about some of the relationships you observed in this part of the \
-investigation. Were there features that strengthened each other in terms of \
-looking at your feature(s) of interest?
+* **Data is unbalanced**: there are few samples of the higher and lower quality
+levels. Although it's not a determinant factor in linear regression, in this 
+case it may have impacted.  
 
-### Were there any interesting or surprising interactions between features?
+* **Weak correlation**: the correlation among the attributes were weak, ie. none
+of them was greater than 50%.  
 
-### OPTIONAL: Did you create any models with your dataset? Discuss the \
-strengths and limitations of your model.
+* **Dependent attributes**: for a better modelling, it would be better to target
+exactly what we were looking for: good wines, in the case. In this analysis we
+have considered the whole spectrum for quality, with the exception of some 
+analyzes in which we sub-sampled the set for quality levels greater than or 
+equal to 7, but whose findings were not relevant.  
+
+* **Subjectivity**: this is the most interesting aspect to me. Unlike a diamond 
+exploratory data analysis, for example, whose measures are limited to 
+physicochemical factors, the main attribute of our dataset (quality) is totally
+subjective. In [[3]](#[3]), for example, the influence of the human subjectivity
+on wine tasting is criticized. In addition, in our dataset it was not informed
+how many distinct professionals evaluated the same wine, nor the divergences 
+they may have had, as well as other important aspects that should be considered.
+
 
 ------
 
-# Final Plots and Summary
+# 5. Final Plots and Summary
 
 > **Tip**: You've done a lot of exploration and have built up an understanding
 of the structure of and relationships between the variables in your dataset.
@@ -610,46 +634,71 @@ make sure you justify why you chose each plot by describing what it shows.
 
 ### Plot One
 ```{r echo=FALSE, Plot_One}
+## Reference on how to add the title:
+## http://www.sthda.com/english/rpkgs/ggpubr/reference/annotate_figure.html
+## Arranging the plots on the same page
+plotOne <- ggarrange(p1,p2,p3,text.p,
+            ncol=1, nrow=4,
+            common.legend = TRUE, legend = 'right')
 
+annotate_figure(plotOne,
+               top = text_grob("Wine acidities analysis", face = "bold", size = 14),
+               fig.lab = "Figure 1", fig.lab.face = "bold")
 ```
 
 ### Description One
-
+This plot does not bring the most relevant information I found in this EDA, but
+it helped me to learn a lot about wine. I do appreciate drinking some wine and
+I already knew acidity is an important measure. However I did not know there are
+three main acidities and that one is really tasty (*citric.acid*) and the main 
+aspects of grapes such *pinot noir*. On the other hand, the volatile acidity is
+the one responsible for the vinager unpleasent taste and one of the main 
+characteristics of a bad wine.  
+In the technical aspects, I choose this plot because it make me spend a long 
+time learning how to arrange all them in just one page, how to plot the 
+statistics of a subset and how to describe them with a portion of text.  
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-
+ggpairs(wines[variables], aes(alpha=0.3), title= "Pairplot with the main dataset attributes")
 ```
 
 ### Description Two
-
+In my opinion this pairplot summarises the main aspects of the dataset I have 
+worked with. From the univariate analysis I was able to identify the most
+relevant one and then to get an overview of the data by them. The diagonal
+presents the univariate distribution and upper it we have the correlation values
+among the attributes. It is the indispensable starting point for any EDA. 
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
-
+radarchart(alcohol_quality, axistype=1, calcex = 0.8, vlcex=0.9,
+           caxislabels = c('9.6%','','11%','','12.4%'),
+           title="Percentage of alcohol by quality level")
 ```
 
 ### Description Three
-
+I confess the radarchart was the only visualization I found harder to build with
+R than with python. Even so, I spent a long time trying to find the appropriate
+package and finding out how to fill its parameters. The result, however, was 
+exactly what I expected: a simple chart but one with the most evident 
+relationships I found out in this dataset.
 ------
 
 # Reflection
-
-> **Tip**: Here's the final step! Reflect on the exploration you performed and
-the insights you found. What were some of the struggles that you went through?
-What went well? What was surprising? Make sure you include an insight into
-future work that could be done with the dataset.
-
-> **Tip**: Don't forget to remove this, and the other **Tip** sections before
-saving your final work and knitting the final report!
-
+I have opted to include some reflection and discussion closer to each chart
+during the EDA process. As a final reflection, I'm pretty sure R is now one 
+more amazing tool I will put on my toolkit of data scientists. Before I got
+enrolled in this course, and before putting my hands on dirty with this project, 
+I thought someone should choose among python or R. Now I see both languages
+are plenty of resources and both can be used complementarily.
 
 ## References
-[1] P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
+<a name='[1]'></a> [1] P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
   Modeling wine preferences by data mining from physicochemical properties.
   In Decision Support Systems, Elsevier, 47(4):547-553. ISSN: 0167-9236.  
   Available at http://dx.doi.org/10.1016/j.dss.2009.05.016
   
-<a name='[2]'></a>[2] ARRUMAR. LIVRO SOBRE VINHOS.. MIT Press. http://scitechconnect.elsevier.com/wp-content/uploads/2014/06/main-38.pdf
+<a name='[2]'></a>[2] http://scitechconnect.elsevier.com/wp-content/uploads/2014/06/main-38.pdf
 
-(Ver se vou usar essa referência: https://www.jstor.org/stable/10.7312/shep17700)
+<a name='[3]'></a>[3] https://www.theguardian.com/lifeandstyle/2013/jun/23/wine-tasting-junk-science-analysis
