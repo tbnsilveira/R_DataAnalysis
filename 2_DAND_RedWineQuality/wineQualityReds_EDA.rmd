@@ -39,7 +39,7 @@ characteristics and relationships before formal, rigorous statistical analyses
 are applied. EDA can lead to insights, which may uncover to other questions, 
 and eventually predictive models. As explained during the Udacity course, EDA 
 is also an important “line of defense” against bad data and is an opportunity 
-to notice that some assumptions or intuitions about a data set are violated.
+to notice that some assumptions or intuitions about a dataset are violated.
 
 ## 1. Understanding the data
 The first step before diving down EDA is to provide a short introduction into 
@@ -48,7 +48,7 @@ options I have chosen the "Wine Quality" dataset ([available at http://dx.doi.or
 since I'm a wine lover. 
 
 Said that, and since our data is already loaded, the first thing to do is to 
-take a look at the very first line of the data set:
+take a look at the very first line of the dataset:
 
 ```{r echo=FALSE, Load_the_Data}
 # First look at dataset
@@ -122,7 +122,7 @@ ggplot(aes(x=alcohol, fill=quality.factor), data = wines) +
 ```
 
 #### Sulphates
-Accordingly to the data set documentation, it refers to a wine additive which 
+Accordingly to the dataset documentation, it refers to a wine additive which 
 can contribute to sulfur dioxide gas (S02) levels. This last acts as an 
 antimicrobial and antioxidant. The sulphates levels are measured by the 
 concentration of *potassium sulphate* in *g/dm³*.  
@@ -209,7 +209,7 @@ is almost always a desirable aspect, is a wine property not fully defined. In
 the same reference, what called my attention is that *sweetness* and the 
 presence of *glycerol* can increase the perception of body, while acidity 
 appears to reduce the perception of body. This description has clarified my 
-misconfusion around *wine density*, in the way we now follow with the analysis:
+confusion around *wine density*, in the way we now follow with the analysis:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.density.hist}
 ## How the "pH" attribute is distributed?
@@ -249,8 +249,8 @@ with a similar analysis for the other attributes.
 
 
 #### Sulfur dioxide
-As explained in the data set description, the *sulfur dioxide* $SO_2$ can be
-found in its free form, as a dissolved gas or as a bisulfite ion, or in bounded
+As explained in the dataset description, the *sulfur dioxide* $SO_2$ can be
+found in its free-form, as a dissolved gas or as a bisulfite ion, or in bounded
 forms with other molecules. Besides its function to prevent microbial growth and
 wine oxidation, it is mostly undetectable in wine. Free concentrations over *50 
 ppm*, though, turns it evident in the nose and taste of wine.  
@@ -335,7 +335,7 @@ and highest quality levels are around the same salt values.
 This attribute stand for the amount of sugar remaining after fermentation stops. 
 Accordingly to the dataset documentation, it's rare to find wines with less than
 1 gram/liter (or $g/{dm}^3$ in the International System of Units - SI). On the
-other hand, wines with more than 45 grams/liter of sugare are categorized as 
+other hand, wines with more than 45 grams/liter of sugar are categorized as 
 sweet.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.acidity}
@@ -354,7 +354,7 @@ them measured in $g/{dm}^3$:
 * **Fixed acidity**: normally refers to *tartaric acid* which are involved with 
 wine and do not evaporate readily.  
 * **Volatile acidity**: the amount of acetic acid in wine, which at too high 
-levels can be unpleasent, tasting like a vinegar.  
+levels can be unpleasant, tasting like a vinegar.  
 * **Citric acid**: usually found in small quantities, citric acid can add some 
 *freshness* and flavor to wines. 
 
@@ -411,16 +411,16 @@ ggarrange(p1,p2,p3,text.p,
 ```
 
 The histograms above seemed reasonable to me. What called my attention, though, 
-are the maximum values for the wines assigned with high quality level. Specially
+are the maximum values for the wines assigned with high-quality level. Especially
 when considering the *volatile acidity*, which from description is the attribute
-responsible for an unpleasent tasting, I expected the maximum value to be lower.
+responsible for an unpleasant tasting, I expected the maximum value to be lower.
 In [[2]](#[2]) there are many discussions regarding acidity in wine, but the 
 typification differs from the presented in the data description. This is an
 aspect of the data that should be investigate in more detail.
 
 ### Findings from univariate analysis
 In this Section I explored the *Red Wine dataset* built from a scientific 
-research about whose objective was to model wine prefences by data mining from
+research about whose objective was to model wine preferences by data mining from
 physicochemical properties [[1]](#[1]).  
 
 This first analysis, called univariate because it considers only one attribute 
@@ -434,14 +434,14 @@ analysis.
 At this point, we are already able to select some important attributes in order
 to check how they relate to each other:  
   
-  * The **quality** atribute will be our *targeted variable* throughout the 
+  * The **quality** attribute will be our *targeted variable* throughout the 
   whole analysis. As a premise, this analysis objective is to find out which
   attributes are related to wines of better quality, ie, those assigned with 
   a quality level $\geq 7$.  
   
   * Considering the premise above and the findings of the univariate analysis,
-  **alcohol** becomes an important feature, since it clearly separates high
-  quality wines from the low quality ones.  
+  **alcohol** becomes an important feature, since it clearly separates 
+  high-quality wines from the low-quality ones.  
   
   * The **pH** and **density** attributes become relevant for a further analysis
   since they are related to the *body* sensation, as explored above.  
@@ -508,7 +508,7 @@ alcohol_quality <- wines %>%
   group_by(quality) %>%
   summarise(alcohol_mean = mean(alcohol))
 
-## Since ggplot2 does not contain a ready function for radar chart, I choosed to
+## Since ggplot2 does not contain a ready function for radar chart, I chose to
 ## use the radarchart function from "fmsb" package:
 #install.packages('fmsb')
 library(fmsb)
@@ -572,7 +572,7 @@ Regarding the interpretation of the graph, it becomes evident that there is no
 correlation between these two variables.
 
 
-## 4. Multivariate Analaysis
+## 4. Multivariate Analysis
 
 Most of the information we could gather from the dataset variables were already 
 obtained in the previous section. In this way, in this section I intend to build
@@ -622,16 +622,7 @@ they may have had, as well as other important aspects that should be considered.
 
 ------
 
-# 5. Final Plots and Summary
-
-> **Tip**: You've done a lot of exploration and have built up an understanding
-of the structure of and relationships between the variables in your dataset.
-Here, you will select three plots from all of your previous exploration to
-present here as a summary of some of your most interesting findings. Make sure
-that you have refined your selected plots for good titling, axis labels (with
-units), and good aesthetic choices (e.g. color, transparency). After each plot,
-make sure you justify why you chose each plot by describing what it shows.
-
+# 5. Final Plots and Summary  
 ### Plot One
 ```{r echo=FALSE, Plot_One}
 ## Reference on how to add the title:
@@ -651,12 +642,13 @@ This plot does not bring the most relevant information I found in this EDA, but
 it helped me to learn a lot about wine. I do appreciate drinking some wine and
 I already knew acidity is an important measure. However I did not know there are
 three main acidities and that one is really tasty (*citric.acid*) and the main 
-aspects of grapes such *pinot noir*. On the other hand, the volatile acidity is
-the one responsible for the vinager unpleasent taste and one of the main 
+aspects of grapes such as *pinot noir*. On the other hand, the volatile acidity is
+the one responsible for the vinegar unpleasant taste and one of the main 
 characteristics of a bad wine.  
-In the technical aspects, I choose this plot because it make me spend a long 
+In the technical aspects, I choose this plot because it makes me spend a long 
 time learning how to arrange all them in just one page, how to plot the 
 statistics of a subset and how to describe them with a portion of text.  
+
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
@@ -664,11 +656,12 @@ ggpairs(wines[variables], aes(alpha=0.3), title= "Pairplot with the main dataset
 ```
 
 ### Description Two
-In my opinion this pairplot summarises the main aspects of the dataset I have 
+In my opinion, this pairplot summarises the main aspects of the dataset I have 
 worked with. From the univariate analysis I was able to identify the most
 relevant one and then to get an overview of the data by them. The diagonal
 presents the univariate distribution and upper it we have the correlation values
-among the attributes. It is the indispensable starting point for any EDA. 
+among the attributes. It is the indispensable starting point for any EDA.  
+
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
@@ -682,16 +675,18 @@ I confess the radarchart was the only visualization I found harder to build with
 R than with python. Even so, I spent a long time trying to find the appropriate
 package and finding out how to fill its parameters. The result, however, was 
 exactly what I expected: a simple chart but one with the most evident 
-relationships I found out in this dataset.
+relationships I found out in this dataset.  
+
 ------
 
-# Reflection
+## Reflection
 I have opted to include some reflection and discussion closer to each chart
 during the EDA process. As a final reflection, I'm pretty sure R is now one 
 more amazing tool I will put on my toolkit of data scientists. Before I got
 enrolled in this course, and before putting my hands on dirty with this project, 
 I thought someone should choose among python or R. Now I see both languages
 are plenty of resources and both can be used complementarily.
+
 
 ## References
 <a name='[1]'></a> [1] P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
