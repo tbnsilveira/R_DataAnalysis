@@ -5,7 +5,7 @@ output:
 ---
 # Red Wine EDA
 Tiago B.N. Silveira, MSc.  
-July 9, 2018  
+July 15, 2018  
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 # Load all of the packages that you end up using in your analysis in this code
@@ -30,7 +30,7 @@ wines <- read.csv("wineQualityReds.csv")
 ```
 
 This project is part of the Udacity Data Analysis Nanodegree and aims to apply 
-**exploratory data analysis (EDA)** techniques using R in order to explore 
+**exploratory data analysis (EDA)** techniques using R in order to find out
 relationships in one to multiple variables, as well as exploring a given dataset
 for distributions, outliers, and anomalies. 
 
@@ -61,11 +61,13 @@ We already knew it is a tidy dataset. Anyway, it was possible to check there is
 any missing value (NA values, for example) through the *summary* output.
 
 To understand each data attributes, it's helpful to consult the data description
-where the following information is found:
-> The two datasets are related to red and white variants of the Portuguese "Vinho Verde" wine.
-   For more details, consult: http://www.vinhoverde.pt/en/ or the reference [Cortez et al., 2009].
-   Due to privacy and logistic issues, only physicochemical (inputs) and sensory (the output) variables 
-   are available (e.g. there is no data about grape types, wine brand, wine selling price, etc.).
+where the following information is found:  
+
+> The two datasets are related to red and white variants of the Portuguese 
+"Vinho Verde" wine. For more details, consult: http://www.vinhoverde.pt/en/ or 
+the reference [[1]](#[1]). Due to privacy and logistic issues, only 
+physicochemical (inputs) and sensory (the output) variables are available (e.g. 
+there is no data about grape types, wine brand, wine selling price, etc).  
 
 It's also important to notice that besides the target feature is the wine 
 quality, the dataset is unbalanced regarding to it. It means there are few 
@@ -76,9 +78,10 @@ way.
 
 ## 2. Univariate Analysis
 In order to catch the meaning of each variable in the dataset, in this section 
-we will seek to explore each attribute in what is known as *univariate analysis*.
-The most relevant attributes of this dataset are consolidated at the end of this
-section. 
+we will seek to explore each attribute in what is known as *univariate 
+analysis*. The most relevant attributes of this dataset are consolidated at the
+end of this section.  
+
 
 ### A closer look at each attribute
 #### Quality
@@ -91,8 +94,8 @@ ggplot(aes(x=quality), data = wines) +
 ```
 
 The first thing to notice is that there are few *really bad wines*, i.e. those
-whose quality is below 3. In the same way, there are few *really good wines*, i.e. 
-those whose quality is above 8. It's also effort to notice this distribution
+whose quality is below 3. In the same way, there are few *really good wines*, 
+ie, those whose quality is above 8. It's also effort to notice this distribution
 seems like a normal one.  
 
 Considering this is the target attribute, all the upcoming univariate analysis
@@ -278,8 +281,10 @@ p1 <- p0 + geom_histogram(aes(x=free.sulfur.dioxide, fill=as.factor(quality)))
 p2 <- p0 + geom_histogram(aes(x= total.sulfur.dioxide, fill=as.factor(quality)))
 
 p0log <- ggplot(data = wines) + scale_x_log10() + scale_fill_brewer(type='div')
-p3 <- p0log + geom_histogram(aes(x=free.sulfur.dioxide, fill=as.factor(quality)))
-p4 <- p0log + geom_histogram(aes(x= total.sulfur.dioxide, fill=as.factor(quality)))
+p3 <- p0log + geom_histogram(aes(x=free.sulfur.dioxide, 
+                                 fill=as.factor(quality)))
+p4 <- p0log + geom_histogram(aes(x= total.sulfur.dioxide, 
+                                 fill=as.factor(quality)))
 
 ggarrange(p1,p3,p2,p4,
             ncol=2, nrow=2,
@@ -411,12 +416,13 @@ ggarrange(p1,p2,p3,text.p,
 ```
 
 The histograms above seemed reasonable to me. What called my attention, though, 
-are the maximum values for the wines assigned with high-quality level. Especially
-when considering the *volatile acidity*, which from description is the attribute
-responsible for an unpleasant tasting, I expected the maximum value to be lower.
-In [[2]](#[2]) there are many discussions regarding acidity in wine, but the 
-typification differs from the presented in the data description. This is an
-aspect of the data that should be investigate in more detail.
+are the maximum values for the wines assigned with high-quality level. 
+Especially when considering the *volatile acidity*, which from description is 
+the attribute responsible for an unpleasant tasting, I expected the maximum 
+value to be lower. In [[2]](#[2]) there are many discussions regarding acidity 
+in wine, but the typification differs from the presented in the data 
+description. This is an aspect of the data that should be investigate in more
+detail.
 
 ### Findings from univariate analysis
 In this Section I explored the *Red Wine dataset* built from a scientific 
@@ -472,7 +478,8 @@ variables <- c('alcohol','pH','density','chlorides',
 ggpairs(wines[variables], aes(alpha=0.3))
 
 ## I experimented adding jitter, but the result was not satisfactory:
-#ggpairs(wines[variables], aes(alpha=0.3), lower = list(continuous=wrap("points", position="jitter")))
+#ggpairs(wines[variables], aes(alpha=0.3), 
+#   lower = list(continuous=wrap("points", position="jitter")))
 ```
 
 The pair plots above summarize all the information we have gotten until now:  
@@ -633,7 +640,8 @@ plotOne <- ggarrange(p1,p2,p3,text.p,
             common.legend = TRUE, legend = 'right')
 
 annotate_figure(plotOne,
-               top = text_grob("Wine acidities analysis", face = "bold", size = 14),
+               top = text_grob("Wine acidities analysis", 
+                               face = "bold", size = 14),
                fig.lab = "Figure 1", fig.lab.face = "bold")
 ```
 
@@ -642,8 +650,8 @@ This plot does not bring the most relevant information I found in this EDA, but
 it helped me to learn a lot about wine. I do appreciate drinking some wine and
 I already knew acidity is an important measure. However I did not know there are
 three main acidities and that one is really tasty (*citric.acid*) and the main 
-aspects of grapes such as *pinot noir*. On the other hand, the volatile acidity is
-the one responsible for the vinegar unpleasant taste and one of the main 
+aspects of grapes such as *pinot noir*. On the other hand, the volatile acidity 
+is the one responsible for the vinegar unpleasant taste and one of the main 
 characteristics of a bad wine.  
 In the technical aspects, I choose this plot because it makes me spend a long 
 time learning how to arrange all them in just one page, how to plot the 
@@ -652,7 +660,8 @@ statistics of a subset and how to describe them with a portion of text.
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-ggpairs(wines[variables], aes(alpha=0.3), title= "Pairplot with the main dataset attributes")
+ggpairs(wines[variables], aes(alpha=0.3), 
+        title= "Pairplot with the main dataset attributes")
 ```
 
 ### Description Two

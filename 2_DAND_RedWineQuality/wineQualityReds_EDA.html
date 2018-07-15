@@ -124,8 +124,8 @@ $(document).ready(function () {
 <div id="red-wine-eda" class="section level1">
 <h1>Red Wine EDA</h1>
 <p>Tiago B.N. Silveira, MSc.<br />
-July 9, 2018</p>
-<p>This project is part of the Udacity Data Analysis Nanodegree and aims to apply <strong>exploratory data analysis (EDA)</strong> techniques using R in order to explore relationships in one to multiple variables, as well as exploring a given dataset for distributions, outliers, and anomalies.</p>
+July 15, 2018</p>
+<p>This project is part of the Udacity Data Analysis Nanodegree and aims to apply <strong>exploratory data analysis (EDA)</strong> techniques using R in order to find out relationships in one to multiple variables, as well as exploring a given dataset for distributions, outliers, and anomalies.</p>
 <p>EDA can thus be understood as the numerical and graphical examination of data characteristics and relationships before formal, rigorous statistical analyses are applied. EDA can lead to insights, which may uncover to other questions, and eventually predictive models. As explained during the Udacity course, EDA is also an important “line of defense” against bad data and is an opportunity to notice that some assumptions or intuitions about a dataset are violated.</p>
 <div id="understanding-the-data" class="section level2">
 <h2>1. Understanding the data</h2>
@@ -195,7 +195,12 @@ July 9, 2018</p>
 ##  3rd Qu.:11.10   3rd Qu.:6.000  
 ##  Max.   :14.90   Max.   :8.000</code></pre>
 <p>We already knew it is a tidy dataset. Anyway, it was possible to check there is any missing value (NA values, for example) through the <em>summary</em> output.</p>
-<p>To understand each data attributes, it’s helpful to consult the data description where the following information is found: &gt; The two datasets are related to red and white variants of the Portuguese “Vinho Verde” wine. For more details, consult: <a href="http://www.vinhoverde.pt/en/" class="uri">http://www.vinhoverde.pt/en/</a> or the reference [Cortez et al., 2009]. Due to privacy and logistic issues, only physicochemical (inputs) and sensory (the output) variables are available (e.g. there is no data about grape types, wine brand, wine selling price, etc.).</p>
+<p>To understand each data attributes, it’s helpful to consult the data description where the following information is found:</p>
+<blockquote>
+<blockquote>
+<p>The two datasets are related to red and white variants of the Portuguese “Vinho Verde” wine. For more details, consult: <a href="http://www.vinhoverde.pt/en/" class="uri">http://www.vinhoverde.pt/en/</a> or the reference [Cortez et al., 2009]. Due to privacy and logistic issues, only physicochemical (inputs) and sensory (the output) variables are available (e.g. there is no data about grape types, wine brand, wine selling price, etc.).</p>
+</blockquote>
+</blockquote>
 <p>It’s also important to notice that besides the target feature is the wine quality, the dataset is unbalanced regarding to it. It means there are few excellent or poor wines. This issue will be addressed later. For now, let’s start taking a look at each attribute in order to understand our data in deepen way.</p>
 </div>
 <div id="univariate-analysis" class="section level2">
