@@ -702,15 +702,15 @@ they may have had, as well as other important aspects that should be considered.
 ```{r echo=FALSE, Plot_One}
 ## Reference on how to add the title:
 ## http://www.sthda.com/english/rpkgs/ggpubr/reference/annotate_figure.html
-## Arranging the plots on the same page
-plotOne <- ggarrange(p1,p2,p3,text.p,
-            ncol=1, nrow=4,
-            common.legend = TRUE, legend = 'right')
-
-annotate_figure(plotOne,
-               top = text_grob("Wine acidities analysis", 
-                               face = "bold", size = 14),
-               fig.lab = "Figure 1", fig.lab.face = "bold")
+## It is not used here anymore, but I will kept the references.
+ggplot(aes(x = factor(quality), y = volatile.acidity), data = wines) + 
+  geom_boxplot( aes(fill= wines$alcohol.bucket)) +
+  scale_fill_brewer(type='seq',
+                   guide=guide_legend(title='Alcohol (%)')) + 
+  labs(x ='Quality (assigned level)', y= 'Volatile acidity (g/dm³)') +
+  ggtitle("Relationship between alcohol percentage, volatile acidity,
+          and quality level for red wines") + 
+     theme(plot.title = element_text(lineheight=.8, face="bold", hjust=-0.27))
 ```
 
 ### Description One
