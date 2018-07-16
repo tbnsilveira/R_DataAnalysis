@@ -756,12 +756,35 @@ relationships I found out in this dataset.
 ------
 
 ## Reflection
-I have opted to include some reflection and discussion closer to each chart
-during the EDA process. As a final reflection, I'm pretty sure R is now one 
-more amazing tool I will put on my toolkit of data scientists. Before I got
-enrolled in this course, and before putting my hands on dirty with this project, 
-I thought someone should choose among python or R. Now I see both languages
-are plenty of resources and both can be used complementarily.
+Regarding the purpose of this analysis, some reflections and discussions were 
+included closer to each chart during the EDA process, in order to facilitate 
+their comprehension. A final word on this, though, is that the EDA allowed not
+only to understand the dataset but also to identify its main characteristics, 
+and two variables that are somehow correlated to the target variable, in this 
+case the quality of the red wines.  
+
+Some questions aroused from this EDA that may be explored on future 
+researches:  
+
+* What is the winery of each evaluated wine? The reason to include such 
+information is to correlate the wine density with the water density of the 
+watersheds from the production region.  
+
+* Using this same dataset, it would be interesting to improve the linear model 
+by changing the approach to select the training data. From EDA we know the 
+attributes we have chosen presen more correlation on the bordering values. In 
+this case, it seems reasonably to model our linear regression taking into
+account this ranges, by defining some operation thresholds for the model, for
+example.  
+
+* Also, it will be interesting to apply machine learning on this dataset, since
+the EDA is already done. 
+
+Regarding the technical aspects of EDA, I'm pretty sure R is now one more 
+amazing tool I will put on my data scientist toolkit. Before I got enrolled in 
+this course, and before putting my hands on dirty with this project, I thought 
+someone should choose among python or R. Now I see both languages are plenty of 
+resources and both can be used complementarily.
 
 
 ## References
