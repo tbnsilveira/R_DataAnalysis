@@ -615,17 +615,48 @@ charts I chose to apply the logarithm, although I could also just adjust the
 limits of the x-axis. 
 
 Regarding the interpretation of the graph, it becomes evident that there is no 
-correlation between these two variables.
+correlation between these two variables, which was also shown on our first
+correlation matrix. 
 
 
 ## 4. Multivariate Analysis
-
 Most of the information we could gather from the dataset variables were already 
-obtained in the previous section. In this way, in this section I intend to build
-a linear regression model that could allow us to estimate the wine quality from 
-a given set of attributes.
+obtained in the previous section. From the previous analysis, **alcohol** is 
+the attribute in our data most correlated to our target variable. In a lower 
+rate, the *volatile.acidity* is also correlated. The next charts will try to 
+explore the relationships among these three variables:  
 
 ```{r echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+ggplot(aes(x = alcohol, y = volatile.acidity, color = factor(quality)), 
+       data = wines) +
+      geom_point(alpha = 0.8, size = 1.2) +
+      geom_smooth(method = "lm", se = FALSE,size=1.2)  +
+  scale_color_brewer(type='div', guide=guide_legend(title='Quality'))
+```
+
+Previously we have found that the alcohol percentage correlation to quality 
+levels is higher for bordering values. From the chart above we perceive it also
+becomes true when we correlate alcohol and the volatile acidity. Our next chart 
+shows the boxplot for the correlation between the volatile acidity and different
+buckets of alcohol percentage, accordingly to each quality level. 
+
+```{r echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+wines$alcohol.bucket <- cut(wines$alcohol,c(8, 9, 10.5, 12, 16))
+
+ggplot(aes(x = factor(quality), y = volatile.acidity), data = wines) + 
+  geom_boxplot( aes(fill= wines$alcohol.bucket)) +
+  scale_fill_brewer(type='seq',
+                   guide=guide_legend(title='alcohol.bucket'))
+```
+
+
+
+### Linear regression models:
+In this section I intend to build a linear regression model that could allow us 
+to estimate the wine quality from the two most important attributes we have
+found in our EDA.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 ## Reference: https://github.com/nicolasfguillaume/Exploratory-Data-Analysis-with-R/blob/master/Lesson_6.md
 library(scales)
 library(memisc)
@@ -633,14 +664,12 @@ library(memisc)
 ## objects. By protecting the expression, ensures it is interpreted in the 
 ## obvious arithmetical way.
 m1 <- lm(I(quality) ~ I(alcohol), data = wines)
-m2 <- update(m1, ~ . + density)   # adding the carat variable to the regression
-m3 <- update(m2, ~ . + pH)
-m4 <- update(m3, ~ . + volatile.acidity)
-mtable(m1, m2, m3, m4)
+m2 <- update(m1, ~ . + volatile.acidity)
+mtable(m1, m2)
 ```
 
 The resultant model was not as good as I expected to, with a final R-square 
-measure of 34%. Since the objective of this project was limited on EDA, I will 
+measure of 32%. Since the objective of this project was limited on EDA, I will 
 not try to engineer any feature in order to reach better results, but instead I
 will discuss some aspects that may explain the model insuccess: 
 
