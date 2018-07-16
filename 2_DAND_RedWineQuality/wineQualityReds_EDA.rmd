@@ -88,11 +88,12 @@ end of this section.
 ### A closer look at each attribute
 #### Quality
 Since it's the target attribute, there is any doubt about its relevance. That
-way, let us first understand its distribution.
+way, let us first understand its distribution through a bar chart, since quality
+is an ordinal data.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.quality}
 ggplot(aes(x=quality), data = wines) + 
-    geom_histogram()
+    geom_bar()
 ```
 
 The first thing to notice is that there are few *really bad wines*, i.e. those
@@ -106,7 +107,6 @@ function to plot the histogram for a given variable, together with a boxplot
 showing out the outliers.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.function}
-## Transforming the int quality attribute into a discrete factor one:
 wine_attribute <- function(attribute, name = '', histScaleYlog10 = TRUE) {
   histogram <- ggplot(data = wines) +
       geom_histogram(aes(x=attribute, fill=as.factor(quality))) +
