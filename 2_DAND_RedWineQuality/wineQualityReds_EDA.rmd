@@ -105,13 +105,13 @@ showing out the outliers.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.function}
 ## Transforming the int quality attribute into a discrete factor one:
-wine_attribute <- function(attribute, name = '', scaleYlog10 = TRUE) {
+wine_attribute <- function(attribute, name = '', histScaleYlog10 = TRUE) {
   histogram <- ggplot(data = wines) +
       geom_histogram(aes(x=attribute, fill=as.factor(quality))) +
       scale_fill_brewer(type='div') + 
       labs(x = name)
   
-  if (scaleYlog10) {
+  if (histScaleYlog10) {
     histogram <- histogram + scale_y_log10()
   }
   
@@ -167,21 +167,14 @@ our data and how it's related to our target variable:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulphate.charts}
 ## How the "sulphate" attribute is distributed?
-ggplot(aes(x=sulphates), data = wines) + 
-    geom_histogram()
-
-## How the quality is related to the sulphate attribute?
-ggplot(aes(x=sulphates, fill=quality.factor), data = wines) + 
-    geom_histogram() + 
-    scale_y_log10() + 
-    facet_wrap(~ quality.factor)
+wine_attribute(wines$sulphates, name = 'sulphates')
 ```
 
 The values of this attribute are distributed around the mean and there is any 
 clear correlation to the wine quality, at least at this first glance. Anyway,
 the information provided by the first chart was already obtained from *summary*, 
 although from the histogram it becomes clear the almost normal distribution with
-right-skewed values. 
+right-skewed values. The outliers are noticeable from both charts too.  
 
 #### pH
 This attribute describes how acidic or basic a wine is on a scale from 0 (very 
@@ -199,13 +192,16 @@ visually if it follows a normal distribution:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.ph.hist}
 ## How the "pH" attribute is distributed?
-ggplot(aes(x=pH), data = wines) + 
-    geom_histogram()
+wine_attribute(wines$pH, name = 'pH', histScaleYlog10 = FALSE)
 ```
 
-As a wine connoisseur, I believe the wines that are best evaluated have a higher
-pH. To confirm this, I will plot again the pH distribution according to the 
-quality assessment by winemakers:
+As shows above in the plots, the wine pH follows a quasi-normal distribution. 
+We can also confirm that it varies in the range of 3.0 to 3.6, also with some 
+outliers beyond this range.  
+
+In my opinion, the wines that are best evaluated have a higher pH. To validate
+my supposition I will plot again the pH distribution according to the 
+quality assessment by winemakers:  
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.ph.histQuality}
 ## How the quality is related to the wine pH?
@@ -216,7 +212,7 @@ ggplot(aes(x=pH, fill=quality.factor), data = wines) +
 ```
 
 From the last chart I see I was wrong. Besides my personal taste goes for wines
-not so acidic, the pH can't be directly related to the quality. 
+not so acidic, the pH can't be directly related to the quality.  
 
 #### Density
 The wine densities vary accordingly to density of the water and on the percent
@@ -240,9 +236,8 @@ appears to reduce the perception of body. This description has clarified my
 confusion around *wine density*, in the way we now follow with the analysis:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.density.hist}
-## How the "pH" attribute is distributed?
-ggplot(aes(x=density), data = wines) + 
-    geom_histogram()
+## How the "density" attribute is distributed?
+wine_attribute(wines$density, name = 'density', histScaleYlog10 = FALSE)
 ```
 
 Just for curiosity, I'd like to see where the mean density for each quality
@@ -327,13 +322,13 @@ attribute is spread out in the same way for all quality assignments.
 
 Since there are some outliers, as noticed in the beggining when summarizing the 
 data, I will make use of a bloxplot to check how distant it is (or they are)
-from the mean:
+from the mean, in the same way it was done for the previous attributes:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulfur.boxplot}
 ## Reference for a univariate boxplot using ggplot2:
 ## https://stackoverflow.com/questions/25049104/why-does-a-boxplot-in-ggplot-requires-axis-x-and-y
-ggplot(data = wines, aes(x='total.sulfur.dioxide', y=total.sulfur.dioxide)) + 
-    geom_boxplot()
+wine_attribute(wines$total.sulfur.dioxide, name = 'total.sulfur.dioxide', 
+               histScaleYlog10 = FALSE)
 ```
 
 From the boxplot it's clear to see there are two outliers whose amount of sulfur
@@ -346,22 +341,7 @@ measured in $g/{dm}^3$, i.e. in grams per liters.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.chlorides.charts}
 ## How the "chlorides" are present in the wines?
-hist.chlorides <- ggplot(data = wines) +
-    geom_histogram(aes(x=chlorides, fill=as.factor(quality))) +
-    scale_fill_brewer(type='div') + 
-    scale_y_log10()
-
-outliers.chlorides <- ggplot(wines, aes(x = 1, y = chlorides)) + 
-    geom_jitter(alpha = 0.1 ) +
-    geom_boxplot(alpha = 0.2, color = 'red') + 
-    labs(x ='distance from mean')
-    
-
-ggarrange(outliers.chlorides, hist.chlorides,ncol=2, widths = c(1,2))
-
-
-
-wine_attribute(wines$chlorides)
+wine_attribute(wines$chlorides, name = 'chlorides')
 ```
 
 From the boxplot we notice there are outliers in the right-skewed chlorides 
@@ -376,16 +356,8 @@ Accordingly to the dataset documentation, it's rare to find wines with less than
 other hand, wines with more than 45 grams/liter of sugar are categorized as 
 sweet.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.acidity}
-hist.sugar <- ggplot(data = wines) +
-    geom_histogram(aes(x=residual.sugar, fill=as.factor(quality))) +
-    scale_fill_brewer(type='div') + 
-    scale_y_log10()
-
-ggarrange(ggplot(wines, aes(x = 1, y = residual.sugar)) + 
-               geom_jitter(alpha = 0.1 ) +
-               geom_boxplot(alpha = 0.2, color = 'red' ),
-             hist.sugar,ncol=2, widths = c(1,2))
+```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sugar}
+wine_attribute(wines$residual.sugar, name = 'residual.sugar')
 ```
 
 Analyzing the histogram above, even though there are some outliers, none of them
@@ -451,6 +423,9 @@ text.p <- ggparagraph(text = text, face = "italic", size = 8, color = "black")
 ggarrange(p1,p2,p3,text.p,
             ncol=1, nrow=4,
             common.legend = TRUE, legend = 'right')
+
+### Note: I may have written a function for these plots. However, since I have
+### used it only at this time, I find it faster and practical just copy/paste.
 ```
 
 The histograms above seemed reasonable to me. What called my attention, though, 
