@@ -101,31 +101,37 @@ whose quality is below 3. In the same way, there are few *really good wines*,
 ie, those whose quality is above 8. It's also effort to notice this distribution
 seems like a normal one.  
 
-Considering this is the target attribute, all the upcoming univariate analysis
-will be in relation to this attribute. Due to it I will first write a simple 
-function to plot the histogram for a given variable, together with a boxplot
-showing out the outliers.
+Considering this is the target attribute, all the upcoming bivariate analysis
+will be in relation to this attribute, in the next section. By now, let's take a
+look on the distribution of the other dataset variables, together with a boxplot
+in order to show out the outliers. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.function}
-wine_attribute <- function(attribute, name = '', histScaleYlog10 = TRUE) {
+wine_attribute <- function(attribute, histLabel = '') {
+  ## Building the histogram:
   histogram <- ggplot(data = wines) +
-      geom_histogram(aes(x=attribute, fill=as.factor(quality))) +
-      scale_fill_brewer(type='div') + 
-      labs(x = name)
+      geom_histogram(aes(x=attribute), 
+                     fill = 'steelblue', colour='darkgrey', alpha= 0.8) +
+      labs(x = histLabel)
+  ## Histogram scaling y_log10:
+  histYlog <- histogram + scale_y_log10() +
+      labs(y = 'log10(count)', x= histLabel)
   
-  if (histScaleYlog10) {
-    histogram <- histogram + scale_y_log10()
-  }
-  
+  ## Histogram scaling x_log10:
+  histXlog <- histogram + scale_x_log10() + 
+      labs(x = paste('log10(', histLabel,')'))
+
+  ## Building the boxplot highlighting the outliers:
   outliers <- ggplot(wines, aes(x = 1, y = attribute)) + 
       geom_jitter(alpha = 0.1 ) +
       geom_boxplot(alpha = 0.2, color = 'red') + 
-      labs(x ='distance from mean')
+      labs(x ='distance from mean', y= histLabel)
   
-  ggarrange(outliers, histogram,ncol=2, widths = c(1,2))
+  ## Arranging all the plots:
+  histPlots <- ggarrange(histogram, histXlog, histYlog, ncol=1, nrow=3)
+  ggarrange(outliers, histPlots,ncol=2, widths = c(1,1.5))
 }
 ```
-
 
 
 #### Alcohol
@@ -133,22 +139,14 @@ This attribute refers to the percent alcohol content of the wine (% of volume).
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.alcohol}
 ## How the "alcohol" attribute is distributed?
-wine_attribute(wines$alcohol, name = 'alcohol')
+wine_attribute(wines$alcohol, histLabel = 'Alcohol (% of vol)')
 ```
 
 We can notice from the boxplot there are few outliers in this attribute 
 distribution, i.e. most of the samples stands inside $1.5$ times the 
-interquartile rate (IQR). From the histogram, it seems to have a clear 
-distinction between the alcohol distributions for each quality level. In order
-to see it clearly, let's plot those histograms separately:  
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.alcohol.detail}
-## How the quality is related to the alcohol attribute?
-ggplot(aes(x=alcohol, fill=factor(quality)), data = wines) + 
-    geom_histogram() + 
-    scale_y_log10() + 
-    facet_wrap(~ factor(quality))
-```
+interquartile rate (IQR). From the histogram, the cartesian coordinates are 
+adequate to understand this variable distribution, which is concentrated on 9% 
+values.  
 
 
 #### Sulphates
