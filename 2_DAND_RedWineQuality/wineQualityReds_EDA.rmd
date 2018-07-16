@@ -22,6 +22,8 @@ July 15, 2018
 
 library(ggplot2)
 library(dplyr)
+library(ggpubr)
+library(GGally)
 ```
 
 ```{r echo=FALSE,}
@@ -142,10 +144,10 @@ to see it clearly, let's plot those histograms separately:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.alcohol.detail}
 ## How the quality is related to the alcohol attribute?
-ggplot(aes(x=alcohol, fill=quality.factor), data = wines) + 
+ggplot(aes(x=alcohol, fill=factor(quality)), data = wines) + 
     geom_histogram() + 
     scale_y_log10() + 
-    facet_wrap(~ quality.factor)
+    facet_wrap(~ factor(quality))
 ```
 
 
@@ -205,10 +207,10 @@ quality assessment by winemakers:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.ph.histQuality}
 ## How the quality is related to the wine pH?
-ggplot(aes(x=pH, fill=quality.factor), data = wines) + 
+ggplot(aes(x=pH, fill=factor(quality)), data = wines) + 
     geom_histogram() + 
     scale_y_log10() + 
-    facet_wrap(~ quality.factor)
+    facet_wrap(~ factor(quality))
 ```
 
 From the last chart I see I was wrong. Besides my personal taste goes for wines
@@ -294,7 +296,7 @@ charts:
 ## suggested in https://stackoverflow.com/questions/13649473/add-a-common-legend-for-combined-ggplots.
 
 #install.packages("ggpubr")
-library(ggpubr)
+#library(ggpubr)  ## It was already called in this first chunk.
 
 p0 <- ggplot(data = wines) + xlim(0,120) + scale_fill_brewer(type='div')
 p1 <- p0 + geom_histogram(aes(x=free.sulfur.dioxide, fill=as.factor(quality)))
@@ -473,16 +475,31 @@ to check how they relate to each other:
   there is no reference values for them, the outliers should be explored.  
 
 
-## 3. Bivariate Analysis
-In this section let's take a look at the relationships between the variables we
-find out important and the previous analysis. To provide an overview of the 
-correlation among variables, I will first plot the scatterplot pairs of the 
-attributes we may be interested in:
+## 3. Bivariate Analysis  
+In this section we will explore the relationships among all variables in the 
+dataset, directing the analysis to those that have seemed to be more relevant
+from the univariate analysis. We start this by calculating the correlation 
+among all the attributes: 
+
+```{r echo=FALSE, bivariate.correlation}
+## Reference: https://briatte.github.io/ggcorr/#controlling-the-main-geometry
+ggcorr(wines[,2:13], geom = "blank", label = TRUE, 
+       hjust = 0.9, layout.exp = 2) +
+  geom_point(size = 8, aes(color = coefficient > 0, 
+                           alpha = abs(coefficient) > 0.4)) +
+  scale_alpha_manual(values = c("TRUE" = 0.25, "FALSE" = 0)) +
+  guides(color = FALSE, alpha = FALSE)
+```
+
+From the correlation matrix we notice the only relevant attribute to quality is
+the percentage of alcohol. There are some relevant correlation among other 
+variables as well, but they don't contribute to the target variable that we 
+are interested in. Anyway, let's keep looking deeper to this data plotting some
+scatterplot pairs considering only the attributes we found relevant in the 
+univariate section:  
 
 ```{r echo=FALSE, bivariate.overview}
-library(GGally)
 theme_set(theme_minimal())
-
 ## Defining the variables we will explore:
 variables <- c('alcohol','pH','density','chlorides',
                'volatile.acidity','quality')
@@ -503,24 +520,33 @@ The pair plots above summarize all the information we have gotten until now:
 - Other attributes that present some correlations are pH, density and chlorides, 
 although not strong ones.  
 
-### Alcohol Vs. Quality
 
-```{r echo=FALSE, bivariate.alcohol-quality.scatter}
-ggplot(data = wines, aes(x=alcohol, y=quality)) + 
-  geom_point(alpha = 1/5, color='blue') + 
-  #geom_jitter(alpha = 1/5.) + 
-  geom_smooth(method = 'lm', color = 'red')
+### Alcohol Vs. Quality
+In our analysis this is the relationship that seems to be the most relevant so
+far. My first idea was to plot a scatter plot with a smooth line to analyze it
+deeply. However, this type of visualization is not appropriate when one of the 
+features on the chart is categorical or discrete, as is the case of *quality*.
+A boxplot, though, brings so much more information in this case:  
+
+```{r echo=FALSE, bivariate.alcohol-quality.boxplot}
+ggplot(aes(factor(quality), alcohol), data = wines) +
+  geom_jitter( alpha = .3) +
+  geom_boxplot( alpha = .5,color = 'blue')+
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red", 
+               shape = 8, 
+               size = 4)
 ```
 
 As it was expected to, there is some correlation between the alcohol percentage 
-in the wine and its quality. However, I think this information was already 
-available from the histograms in the univariate analysis. Furthermore, since
-many quality levels are assigned to 11% of alcohol, relevant correlation 
-among alcohol and quality arises only when we are dealing with the bordering
-values.  
+in the wine and its quality. However, as it's clear to see from the scattered 
+points, different quality levels are assigned when the wine has 11% of alcohol. 
+This leads us to afirm that relevant correlation between alcohol and quality
+arises only when we are dealing with the bordering values.
 
-To check it out, I will build a radar chart with the alcohol statistics for each
-one of the quality levels:
+Another way to check it out is building a radar chart with the alcohol 
+statistics for each one of the quality levels:
 
 ```{r bivariate.alcohol-quality.radar, echo=FALSE, message=FALSE, warning=FALSE}
 ## First, we need to select the appropriate data:
