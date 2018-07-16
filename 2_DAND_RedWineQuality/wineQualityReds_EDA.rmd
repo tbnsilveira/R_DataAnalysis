@@ -93,7 +93,7 @@ is an ordinal data.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.quality}
 ggplot(aes(x=quality), data = wines) + 
-    geom_bar()
+    geom_bar(fill = 'steelblue', colour='darkgrey', alpha= 0.8)
 ```
 
 The first thing to notice is that there are few *really bad wines*, i.e. those
@@ -107,25 +107,25 @@ look on the distribution of the other dataset variables, together with a boxplot
 in order to show out the outliers. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.function}
-wine_attribute <- function(attribute, histLabel = '') {
+wine_attribute <- function(attribute, varName = '') {
   ## Building the histogram:
   histogram <- ggplot(data = wines) +
       geom_histogram(aes(x=attribute), 
                      fill = 'steelblue', colour='darkgrey', alpha= 0.8) +
-      labs(x = histLabel)
+      labs(x = varName)
   ## Histogram scaling y_log10:
   histYlog <- histogram + scale_y_log10() +
-      labs(y = 'log10(count)', x= histLabel)
+      labs(y = 'log10(count)', x= varName)
   
   ## Histogram scaling x_log10:
   histXlog <- histogram + scale_x_log10() + 
-      labs(x = paste('log10(', histLabel,')'))
+      labs(x = paste('log10(', varName,')'))
 
   ## Building the boxplot highlighting the outliers:
   outliers <- ggplot(wines, aes(x = 1, y = attribute)) + 
       geom_jitter(alpha = 0.1 ) +
       geom_boxplot(alpha = 0.2, color = 'red') + 
-      labs(x ='distance from mean', y= histLabel)
+      labs(x ='distance from mean', y= varName)
   
   ## Arranging all the plots:
   histPlots <- ggarrange(histogram, histXlog, histYlog, ncol=1, nrow=3)
@@ -139,7 +139,7 @@ This attribute refers to the percent alcohol content of the wine (% of volume).
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.alcohol}
 ## How the "alcohol" attribute is distributed?
-wine_attribute(wines$alcohol, histLabel = 'Alcohol (% of vol)')
+wine_attribute(wines$alcohol, varName = 'Alcohol (% of vol)')
 ```
 
 We can notice from the boxplot there are few outliers in this attribute 
@@ -151,7 +151,7 @@ values.
 
 #### Sulphates
 Accordingly to the dataset documentation, it refers to a wine additive which 
-can contribute to sulfur dioxide gas (S02) levels. This last acts as an 
+can contribute to sulfur dioxide gas ($S0_2$) levels. This last acts as an 
 antimicrobial and antioxidant. The sulphates levels are measured by the 
 concentration of *potassium sulphate* in *g/dm³*.  
 
@@ -163,18 +163,16 @@ summary(wines$sulphates)
 ```
 
 As we did before, the next graphs show how this attribute is distributed along 
-our data and how it's related to our target variable:
+our data:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulphate.charts}
 ## How the "sulphate" attribute is distributed?
-wine_attribute(wines$sulphates, name = 'sulphates')
+wine_attribute(wines$sulphates, varName = 'Sulphates (g/dm³)')
 ```
 
-The values of this attribute are distributed around the mean and there is any 
-clear correlation to the wine quality, at least at this first glance. Anyway,
-the information provided by the first chart was already obtained from *summary*, 
-although from the histogram it becomes clear the almost normal distribution with
-right-skewed values. The outliers are noticeable from both charts too.  
+The values of this attribute are distributed around the mean showing also some
+skewness, which is justified by the high number of outliers, as shown in the
+boxplot.  
 
 #### pH
 This attribute describes how acidic or basic a wine is on a scale from 0 (very 
@@ -192,34 +190,22 @@ visually if it follows a normal distribution:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.ph.hist}
 ## How the "pH" attribute is distributed?
-wine_attribute(wines$pH, name = 'pH', histScaleYlog10 = FALSE)
+wine_attribute(wines$pH, varName = 'pH')
 ```
 
-As shows above in the plots, the wine pH follows a quasi-normal distribution. 
+As shown above by the plots, the wine pH follows a quasi-normal distribution. 
 We can also confirm that it varies in the range of 3.0 to 3.6, also with some 
 outliers beyond this range.  
 
-In my opinion, the wines that are best evaluated have a higher pH. To validate
-my supposition I will plot again the pH distribution according to the 
-quality assessment by winemakers:  
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.ph.histQuality}
-## How the quality is related to the wine pH?
-ggplot(aes(x=pH, fill=factor(quality)), data = wines) + 
-    geom_histogram() + 
-    scale_y_log10() + 
-    facet_wrap(~ factor(quality))
-```
-
-From the last chart I see I was wrong. Besides my personal taste goes for wines
-not so acidic, the pH can't be directly related to the quality.  
 
 #### Density
 The wine densities vary accordingly to density of the water and on the percent
 alcohol and sugar content. I particularly prefer full-bodied wines to those 
 lighter ones, characteristics I immediately associate to density. But as far as
 I know, there are both strong and soft great wines, in the way I don't think 
-density would be a decision attribute for wine quality. Let's check?
+density would be a decision attribute for wine quality. I will check this 
+assumptions in the bivariate analysis. For now, let's see how this attribute
+is distributed in our data:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.density.summary}
 summary(wines$density)
@@ -237,38 +223,8 @@ confusion around *wine density*, in the way we now follow with the analysis:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.density.hist}
 ## How the "density" attribute is distributed?
-wine_attribute(wines$density, name = 'density', histScaleYlog10 = FALSE)
+wine_attribute(wines$density, varName = 'Density (g/cm³)')
 ```
-
-Just for curiosity, I'd like to see where the mean density for each quality
-category stands on the chart above. In order to do this, I should first group
-the data I'm interested in (using the mean):
-
-```{r echo=FALSE}
-aggregate(wines['density'], wines['quality'], mean)
-```
-
-After calculating the density mean for each quality level, I'd like to see where 
-they fall in the density histogram, as follow:
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.density.histQuality}
-## How the "denstiy" attribute is distributed by quality? 
-## The following references have helped me to build the graph I was looking for:
-## https://stackoverflow.com/questions/29957669/different-colour-palettes-for-two-different-colour-aesthetic-mappings-in-ggplot2
-## https://stackoverflow.com/questions/1644661/add-a-vertical-line-with-different-intercept-for-each-panel-in-ggplot2
-## https://stackoverflow.com/questions/6557977/how-do-i-add-the-mean-value-to-a-histogram-in-r
-## http://www.sthda.com/english/wiki/colors-in-r
-library("RColorBrewer")
-ggplot(wines) +
-    geom_histogram(aes(x=density)) +
-    geom_vline(data = aggregate(wines['density'], wines['quality'], mean),
-               mapping = aes(xintercept=density, color=as.factor(quality))) + 
-    scale_color_manual(values = brewer.pal(n=8, name="Set1"))
-```
-
-Again, it's interesting to perceive how my initial idea was wrong: the wines 
-assigned with higher quality have lower density in average. Let's move forward
-with a similar analysis for the other attributes.
 
 
 #### Sulfur dioxide
@@ -282,58 +238,27 @@ ppm*, though, turns it evident in the nose and taste of wine.
 summary(wines[c(7,8)])
 ```
 
-The summary above shows out there must be an outlier on data. Also, considering
-the previous statements, I believe the quality of wine is inversely proportional
-to the presence of sulfur dioxide, which I will seek to validate through the 
-charts:
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulfur.graphs}
-## Since I want to see in an unique plot both 'free' and 'total' sulfur dioxide, 
-## I tried first to make use of gridExtra library. However, I wanted to save
-## space using a common legend, reason why I switched to "ggpubr" library, as
-## suggested in https://stackoverflow.com/questions/13649473/add-a-common-legend-for-combined-ggplots.
-
-#install.packages("ggpubr")
-#library(ggpubr)  ## It was already called in this first chunk.
-
-p0 <- ggplot(data = wines) + xlim(0,120) + scale_fill_brewer(type='div')
-p1 <- p0 + geom_histogram(aes(x=free.sulfur.dioxide, fill=as.factor(quality)))
-p2 <- p0 + geom_histogram(aes(x= total.sulfur.dioxide, fill=as.factor(quality)))
-
-p0log <- ggplot(data = wines) + scale_x_log10() + scale_fill_brewer(type='div')
-p3 <- p0log + geom_histogram(aes(x=free.sulfur.dioxide, 
-                                 fill=as.factor(quality)))
-p4 <- p0log + geom_histogram(aes(x= total.sulfur.dioxide, 
-                                 fill=as.factor(quality)))
-
-ggarrange(p1,p3,p2,p4,
-            ncol=2, nrow=2,
-            common.legend = TRUE, legend = 'bottom')
-```
-
-In the chart above I intended to plot the histogram both for the free form and
-the total amount of sulfur dioxide. The column on the left the histograms are 
-shown in a linear x-axis, from which is clear to observe that the total amount 
-follows the same shape as for the free form, with a higher number as expected.
-This graphic layout, though, does not allow to compare how the sulfur dioxide is 
-present considering the wine quality. For this reason, the column on the right 
-shows the same data now in a logarithmic x-axis, which in turns shows this 
-attribute is spread out in the same way for all quality assignments.  
-
-Since there are some outliers, as noticed in the beggining when summarizing the 
-data, I will make use of a bloxplot to check how distant it is (or they are)
-from the mean, in the same way it was done for the previous attributes:
+The summary above shows out there must be an outlier on data. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sulfur.boxplot}
 ## Reference for a univariate boxplot using ggplot2:
 ## https://stackoverflow.com/questions/25049104/why-does-a-boxplot-in-ggplot-requires-axis-x-and-y
-wine_attribute(wines$total.sulfur.dioxide, name = 'total.sulfur.dioxide', 
-               histScaleYlog10 = FALSE)
+wine_attribute(wines$free.sulfur.dioxide, 
+               varName = 'Free Sulfur Dioxide (mg/dm³)')
+
+wine_attribute(wines$total.sulfur.dioxide, 
+               varName = 'Total Sulfur Dioxide (mg/dm³)')
 ```
 
-From the boxplot it's clear to see there are two outliers whose amount of sulfur
-dioxide goes above $200 {mg}/{dm}^3$. I will back to this point later during the
-multivariate analysis. 
+From the boxplot it's clear to see there are two outliers in the total 
+measurements whose amount of sulfur dioxide goes above $200 {mg}/{dm}^3$. I will
+back to this point later during the multivariate analysis. 
+
+In the charts above I intended to plot the histogram both for the free form and
+the total amount of sulfur dioxide. It is clear to observe that the total amount
+follows the same shape as for the free form, the first showing a higher 
+concentration as expected.  
+
 
 #### Chlorides
 This attribute stands for the amount of salt (*sodium chloride*) in the wine, 
@@ -341,12 +266,12 @@ measured in $g/{dm}^3$, i.e. in grams per liters.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.chlorides.charts}
 ## How the "chlorides" are present in the wines?
-wine_attribute(wines$chlorides, name = 'chlorides')
+wine_attribute(wines$chlorides, varName = 'Chlorides (g/dm³)')
 ```
 
 From the boxplot we notice there are outliers in the right-skewed chlorides 
-distribution. From the histogram, it's interesting to observe that the lowest 
-and highest quality levels are around the same salt values. 
+distribution. From the histogram, these outliers are visible when we use a log10
+scale for y-axis.  
 
 
 #### Residual sugar
@@ -357,11 +282,12 @@ other hand, wines with more than 45 grams/liter of sugar are categorized as
 sweet.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.sugar}
-wine_attribute(wines$residual.sugar, name = 'residual.sugar')
+wine_attribute(wines$residual.sugar, varName = 'Residual sugar (g/dm³)')
 ```
 
 Analyzing the histogram above, even though there are some outliers, none of them
 is above $45 g/{dm}^3$, which means that the whole dataset is about dry wines.
+
 
 #### Acidity
 There are three attributes in the dataset related to the wine acidity, all of
@@ -373,82 +299,55 @@ levels can be unpleasant, tasting like a vinegar.
 * **Citric acid**: usually found in small quantities, citric acid can add some 
 *freshness* and flavor to wines. 
 
-Considering the description above, it becomes clear the difference among the
-acidities type and their impact on the wine quality. For this reason, the next 
-charts plot not only a histogram for each acidity type, but also the minimum, 
-maximum and mean values for each one considering only the wines assigned with a
-quality level higher than 7. 
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE, univariate.acidity.summary}
-## Subseting the data. Instead of using "group_by", I want to summarize all the
-## values whose quality is higher than 7 together:
-bestAcid <- subset(wines, quality >= 7)
-# best <- group_by(subset(wines, quality >= 7), quality)
-acidities <- summarise(bestAcid, 
-          fixed_min = min(fixed.acidity),
-          fixed_mean = mean(fixed.acidity),
-          fixed_max = max(fixed.acidity),
-          volat_min = min(volatile.acidity),
-          volat_mean = mean(volatile.acidity),
-          volat_max = max(volatile.acidity),
-          citric_min = min(citric.acid),
-          citric_mean = mean(citric.acid),
-          citric_max = max(citric.acid))
-## The summarized will be highlighted in the correspondent histogram.
+## For this attribute I will plot in a different layout than the previous ones:
+vertPlot <- function(attribute, varName = '') {
+  ## Building the boxplot highlighting the outliers:
+  outliers <- ggplot(wines, aes(x = 1, y = attribute)) + 
+      geom_jitter(alpha = 0.1 ) +
+      geom_boxplot(alpha = 0.2, color = 'red') + 
+      labs(x ='distance from mean', y= varName)
+  ## Building the histogram:
+  histogram <- ggplot(data = wines) +
+      geom_histogram(aes(x=attribute), 
+                     fill = 'steelblue', colour='darkgrey', alpha= 0.8) +
+      labs(x = varName)
+  ## Histogram scaling x_log10:
+  histXlog <- histogram + scale_x_log10() + 
+      labs(x = paste('log10(', varName,')'))
+  
+  ## Arranging the plots vertically:
+  ggarrange(outliers, histogram, histXlog, ncol=1, nrow=3, 
+            heights = c(0.5,0.25,0.25))
+}
 
-p0 <- ggplot(data = wines) #+ xlim(0,120) + scale_fill_brewer(type='div')
-p1 <- p0 + geom_histogram(aes(x=fixed.acidity, fill=as.factor(quality))) +
-    geom_vline(xintercept=acidities$fixed_min,alpha=0.7,linetype='dotted') +
-    geom_vline(xintercept=acidities$fixed_mean,alpha=0.8,linetype='dotdash') +
-    geom_vline(xintercept=acidities$fixed_max,alpha=0.7,linetype='dotted')
-p2 <- p0 + geom_histogram(aes(x=volatile.acidity, fill=as.factor(quality))) + 
-    geom_vline(xintercept=acidities$volat_min,alpha=0.7,linetype='dotted') +
-    geom_vline(xintercept=acidities$volat_mean,alpha=0.8,linetype='dotdash') +
-    geom_vline(xintercept=acidities$volat_max,alpha=0.7,linetype='dotted')
-p3 <- p0 + geom_histogram(aes(x=citric.acid, fill=as.factor(quality))) + 
-    geom_vline(xintercept=acidities$citric_min,alpha=0.7,linetype='dotted') +
-    geom_vline(xintercept=acidities$citric_mean,alpha=0.8,linetype='dotdash') +
-    geom_vline(xintercept=acidities$citric_max,alpha=0.7,linetype='dotted')
+## Creating the plots for each type of acid:
+a1 <- vertPlot(wines$citric.acid, varName = 'Citric acid (g/dm³)')
+a2 <- vertPlot(wines$volatile.acidity, varName = 'Volatile acidity (g/dm³)')
+a3 <- vertPlot(wines$fixed.acidity, varName = 'Fixed acidity (g/dm³)')
 
-## Drawing text to explain the min-mean-max lines
-## Reference: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
-text <- paste('The dotted lines to the left and right of each histogram',
-              'represent the minimum and maximum values, respectively, for the',
-              'given attribute in all wines whose assigned quality is greater',
-              'than or equal to 7. The centerlines represent the mean values.', 
-              sep = ' ')
-text.p <- ggparagraph(text = text, face = "italic", size = 8, color = "black")
+ggarrange(a1,a2,a3, ncol=3)
 
-## Arranging the plots on the same page
-ggarrange(p1,p2,p3,text.p,
-            ncol=1, nrow=4,
-            common.legend = TRUE, legend = 'right')
-
-### Note: I may have written a function for these plots. However, since I have
-### used it only at this time, I find it faster and practical just copy/paste.
 ```
 
-The histograms above seemed reasonable to me. What called my attention, though, 
-are the maximum values for the wines assigned with high-quality level. 
-Especially when considering the *volatile acidity*, which from description is 
-the attribute responsible for an unpleasant tasting, I expected the maximum 
-value to be lower. In [[2]](#[2]) there are many discussions regarding acidity 
-in wine, but the typification differs from the presented in the data 
-description. This is an aspect of the data that should be investigate in more
-detail.
+From these charts, and considering the description for each kind of acidity, we 
+can draw as hypothesis that the *citric acid* outliers relates to some wines 
+whose main characteristic is its freshness or its fruit flavor. The fact that 
+both *citric acid* and *volatile acidity* log distribution have the same shape
+called my attention, at first. However, as we shall see in the further analysis,
+it does not mean any relationship among these attributes by now. The fixed 
+acidity, on the other hand, presents values in a higher scale as well as more 
+outliers.  
 
 ### Findings from univariate analysis
 In this Section I explored the *Red Wine dataset* built from a scientific 
 research about whose objective was to model wine preferences by data mining from
 physicochemical properties [[1]](#[1]).  
 
-This first analysis, called univariate because it considers only one attribute 
-at a time, was essential since it enabled an understanding of the subject to be 
-explored, the available data, and the desired information (the relationship 
-between the measured attributes and the best quality assignments). Finally, 
-knowing the meaning of each attribute and its relation to the evaluated 
-"phenomenon" is essential for obtaining insights and a consequent successful 
-analysis.
+This first analysis, which is called univariate since it considers only one 
+attribute at a time, is essential because it allows both a general understanding
+of the subject to be explored and the meaning of each available attribute in 
+the dataset.
 
 At this point, we are already able to select some important attributes in order
 to check how they relate to each other:  
@@ -458,20 +357,15 @@ to check how they relate to each other:
   attributes are related to wines of better quality, ie, those assigned with 
   a quality level $\geq 7$.  
   
-  * Considering the premise above and the findings of the univariate analysis,
-  **alcohol** becomes an important feature, since it clearly separates 
-  high-quality wines from the low-quality ones.  
+  * The description obtained for each attribute, such as **alcohol**, **pH**, 
+  and **density**, for example, will allow us to analyze them jointly with the
+  **quality** attribute in the next section, in order to seek for correlation. 
   
-  * The **pH** and **density** attributes become relevant for a further analysis
-  since they are related to the *body* sensation, as explored above.  
+  * Many attributes have presented outliers in some level. We could define a 
+  strategy of outlier removal or even though a deeper analysis on them, trying
+  to understand why these values are distant from the mean distribution. In this
+  analysis, though, we will only describe them.
   
-  * Some other attributes, such as **sulfur dioxide** and **chlorides**, seem 
-  to be interesting in some aspect and will be explored in the multivariate 
-  analysis.  
-  
-  * The acidity is very interesting due to its perceived sensations. Besides 
-  there is no reference values for them, the outliers should be explored.  
-
 
 ## 3. Bivariate Analysis  
 In this section we will explore the relationships among all variables in the 
