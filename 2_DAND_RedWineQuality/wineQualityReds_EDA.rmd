@@ -714,17 +714,16 @@ ggplot(aes(x = factor(quality), y = volatile.acidity), data = wines) +
 ```
 
 ### Description One
-This plot does not bring the most relevant information I found in this EDA, but
-it helped me to learn a lot about wine. I do appreciate drinking some wine and
-I already knew acidity is an important measure. However I did not know there are
-three main acidities and that one is really tasty (*citric.acid*) and the main 
-aspects of grapes such as *pinot noir*. On the other hand, the volatile acidity 
+This chart was suggested after my first project review and shows up the main
+result of this EDA. The alcohol percentage and the volatile acidity are the
+dataset attributes most related to the quality of red wines. In this chart, the
+alcohol percentage was plot through buckets allowing to perceive that low 
+quality wines don't have more than 12% of alcohol, while high quality wines
+don't have less than 9% of alcohol. On the other hand, the volatile acidity 
 is the one responsible for the vinegar unpleasant taste and one of the main 
-characteristics of a bad wine.  
-In the technical aspects, I choose this plot because it makes me spend a long 
-time learning how to arrange all them in just one page, how to plot the 
-statistics of a subset and how to describe them with a portion of text.  
-
+characteristics of a bad wine. From this chart this negative correlation among
+volatile acidity and quality is also clear visible. For last, I have added the
+title and the units for each variable, turning this chart ready to be published.
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
