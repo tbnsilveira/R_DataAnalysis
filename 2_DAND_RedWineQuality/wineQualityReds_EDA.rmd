@@ -368,10 +368,9 @@ to check how they relate to each other:
   
 
 ## 3. Bivariate Analysis  
-In this section we will start exploring the relationships among all variables in
+In this section, I will start exploring the relationships among all variables in
 our dataset, directing the analysis to find out which attributes are mainly 
-related to our target variable: the quality score. We start now by calculating 
-the correlation among all the attributes: 
+related to our target variable: the quality score. 
 
 ```{r echo=FALSE, bivariate.correlation}
 ## Reference: https://briatte.github.io/ggcorr/#controlling-the-main-geometry
@@ -386,9 +385,8 @@ ggcorr(wines[,2:13], geom = "blank", label = TRUE,
 From the correlation matrix we notice the only relevant attributes to quality 
 are (i) the percentage of alcohol and (ii) the volatile acidity. There are some 
 relevant correlation among other variables as well, and even though they don't 
-contribute explicitly to the target variable we are interested in, it will be 
-insteresting to take a look on them and find out some new information or 
-insights.  
+contribute explicitly to the target variable, it will be insteresting to take a 
+look on them trying to find out some new information or insight.  
 
 In order to select which of them we will work with, we should analyze the matrix 
 above considering the previous univariate analysis for each attribute. In this 
@@ -400,7 +398,7 @@ findings, since the volatile acidity is responsible for an unpleasent taste in
 the wine.  
 
 * It is quite obvious that the pH attribute is negatively correlated to acidity,
-since the lower values in the pH scale means the higher acidity. Since it is a 
+since the lower values in the pH scale means a higher acidity. Since it is a 
 well-known fact, there is no sense to explore these relationships here.  
 
 * There seems to be some correlation between sulphates and chlorides. However, 
@@ -435,8 +433,8 @@ ggpairs(wines[variables], aes(alpha=0.3))
 #   lower = list(continuous=wrap("points", position="jitter")))
 ```
 
-These pairplots above summarize most of the information we have gotten until 
-now, as for example the unbalanced distribution of quality -- ie, there are more
+The pairplots above summarize most of the information we have gotten until now, 
+as for example the unbalanced distribution of quality -- ie, there are more
 wines scored as 5 or 6 than those below and above these values. 
 
 
@@ -452,8 +450,8 @@ brings so much more information, as follow:
 ggplot(aes(x= factor(quality), y= alcohol), data = wines) +
   geom_jitter( alpha = .3) +
   geom_boxplot( alpha = .5,color = 'blue')+
-  stat_summary(fun.y = "mean", geom = "point", color = "red", 
-               shape = 16, size = 4) +
+  stat_summary(fun.y = "mean", geom = "point", color = "darkblue", 
+               shape = 4, size = 4) +
   labs(x= 'Quality (score between 3 and 9)',
        y= 'Alcohol (% by volume)',
        title= 'Alcohol Vs. Quality')
@@ -497,24 +495,38 @@ radarchart(alcohol_quality, axistype=1, calcex = 0.8, vlcex=0.9,
 From the chart above it becomes really clear that the wines assigned with a 
 better quality in average have higher alcohol percentages.  
 
-The next chart tries 
+The next chart brings the same analysis through boxplots but now considering 
+the volatile acidity versus quality levels. 
 
 ```{r echo=FALSE, bivariate.volatile-quality.boxplot}
 ggplot(aes(x= factor(quality), y= volatile.acidity), data = wines) +
   geom_jitter( alpha = .3) +
   geom_boxplot( alpha = .5,color = 'purple')+
-  stat_summary(fun.y = "mean", geom = "point", color = "red", 
-               shape = 16, size = 4) +
+  stat_summary(fun.y = "mean", geom = "point", color = "darkblue", 
+               shape = 4, size = 4) +
   labs(x= 'Quality (score between 3 and 9)',
-       y= 'Volatile acidity (g/dm³)',
-       title= 'Volatile acidity Vs. Quality')
+       y= 'Volatile Acidity (g/dm³)',
+       title= 'Volatile Acidity Vs. Quality')
 ```
 
-From the boxplots related to the quality attribute we can notice there are three
-main categories of quality we could define: low, equivalent to the scores 3 and
-4, medium, equivalent to the scores 5 and 6, and high, equivalent to the socres
-7 and 8. We also can notice that the volatile acidity is negatively correlated 
-to quality. 
+From the boxplots we can notice there are three main categories of quality we 
+could define: low, equivalent to the scores 3 and 4, middle, equivalent to the 
+scores 5 and 6, and high, equivalent to the socres 7 and 8. We also can notice 
+that the volatile acidity is negatively correlated to quality. 
+
+```{r echo=FALSE}
+wines$quality.levels <- cut(wines$quality,c(2, 4, 6, 9), 
+                            labels = c('Low', 'Middle', 'High'))
+
+ggplot(aes(x= quality.levels, y= alcohol), data = wines) +
+  geom_jitter( alpha = .3) +
+  geom_boxplot( alpha = .5,color = 'blue')+
+  stat_summary(fun.y = "mean", geom = "point", color = "darkblue", 
+               shape = 2, size = 4) +
+  labs(x= 'Quality level',
+       y= 'Alcohol (% by volume)',
+       title= 'Alcohol Vs. Quality level')
+```
 
 
 ### Other correlations
@@ -524,7 +536,7 @@ better resolution and a smooth line that allows us to comprehend how this
 correlation would be for different numerical values. 
 
 #### Alcohol Vs. Density
-```{r bivariate.ph-density, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+```{r bivariate.alcohol-density, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
 ggplot(aes(y = alcohol, x = density), data = wines) + 
   geom_point(alpha = 0.35, pch = 1) + 
   geom_smooth(method = loess) + 
@@ -534,7 +546,7 @@ ggplot(aes(y = alcohol, x = density), data = wines) +
 ```
 
 #### Residual sugar Vs. Density
-```{r bivariate.ph-density, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+```{r bivariate.sugar-density, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
 ggplot(aes(y = residual.sugar, x = density), data = wines) + 
   geom_point(alpha = 0.4, pch = 1) + 
   geom_smooth(method = loess) + 
@@ -546,17 +558,35 @@ ggplot(aes(y = residual.sugar, x = density), data = wines) +
 
 ## 4. Multivariate Analysis
 Most of the information we could gather from the dataset variables were already 
-obtained in the previous section. From the previous analysis, **alcohol** is 
-the attribute in our data most correlated to our target variable. In a lower 
-rate, the *volatile.acidity* is also correlated. The next charts will try to 
-explore the relationships among these three variables:  
+obtained in the previous section. By now, we know *alcohol* is the attribute 
+in our data most correlated to our target variable. In a lower rate, the 
+*volatile.acidity* is also correlated. The next charts will try to explore the 
+relationships, among others, of these three variables:  
 
-```{r echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
-ggplot(aes(x = alcohol, y = volatile.acidity, color = factor(quality)), 
-       data = wines) +
-      geom_point(alpha = 0.8, size = 1.2) +
-      geom_smooth(method = "lm", se = FALSE,size=1.2)  +
-  scale_color_brewer(type='div', guide=guide_legend(title='Quality'))
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(data = wines, aes(x= density, y= alcohol, color= quality.levels)) +
+  coord_cartesian(xlim = c(0.99, 1.005),
+                  ylim = c(8, 15)) +
+  geom_jitter(size= 1) + 
+  geom_smooth(method = 'loess') + 
+  scale_x_continuous(breaks = seq(0.99, 1.005, 0.002)) + 
+  scale_color_brewer(type='seq', guide= guide_legend(title='Quality levels')) + 
+  labs(x= 'Density (mg/dm³)', y= 'Alcohol (% by vol)',
+       title= 'Alcohol Vs. Density accordingly to Quality levels') + 
+  theme_gray()
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(data = wines, aes(x= volatile.acidity, y= alcohol, 
+                         color= quality.levels)) +
+  coord_cartesian(ylim = c(8, 15), xlim = c(0.1, 1.6)) +
+  geom_jitter(size= 1) + 
+  geom_smooth(method = 'loess') + 
+  scale_x_continuous(breaks = seq(0.2, 1.6, 0.2)) + 
+  scale_color_brewer(type='seq', guide= guide_legend(title='Quality levels')) + 
+  labs(x= 'Volatile Acidity (g/dm³)', y= 'Alcohol (% by vol)',
+       title= 'Alcohol Vs. Volatile Acidity accordingly to Quality levels') + 
+  theme_dark()
 ```
 
 Previously we have found that the alcohol percentage correlation to quality 
@@ -571,9 +601,12 @@ wines$alcohol.bucket <- cut(wines$alcohol,c(8, 9, 10.5, 12, 16))
 ggplot(aes(x = factor(quality), y = volatile.acidity), data = wines) + 
   geom_boxplot( aes(fill= wines$alcohol.bucket)) +
   scale_fill_brewer(type='seq',
-                   guide=guide_legend(title='alcohol.bucket'))
+                   guide=guide_legend(title='Alcohol (%)')) + 
+  labs(x ='Quality (assigned level)', y= 'Volatile acidity (g/dm³)',
+       title= 'Relationship between alcohol percentage, volatile acidity,
+          and quality level for red wines') + 
+  theme(plot.title = element_text(lineheight=.8, face="bold", hjust=-0.25))
 ```
-
 
 
 ### Linear regression models:
@@ -632,10 +665,10 @@ ggplot(aes(x = factor(quality), y = volatile.acidity), data = wines) +
   geom_boxplot( aes(fill= wines$alcohol.bucket)) +
   scale_fill_brewer(type='seq',
                    guide=guide_legend(title='Alcohol (%)')) + 
-  labs(x ='Quality (assigned level)', y= 'Volatile acidity (g/dm³)') +
-  ggtitle("Relationship between alcohol percentage, volatile acidity,
-          and quality level for red wines") + 
-     theme(plot.title = element_text(lineheight=.8, face="bold", hjust=-0.27))
+  labs(x ='Quality (assigned level)', y= 'Volatile acidity (g/dm³)',
+       title= 'Relationship between alcohol percentage, volatile acidity,
+          and quality level for red wines') + 
+     theme(plot.title = element_text(lineheight=.8, face="bold", hjust=-0.25))
 ```
 
 ### Description One
@@ -652,17 +685,22 @@ title and the units for each variable, turning this chart ready to be published.
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-ggpairs(wines[variables], aes(alpha=0.3), 
-        title= "Pairplot with the main dataset attributes")
+ggplot(aes(x= factor(quality), y= volatile.acidity), data = wines) +
+  geom_jitter( alpha = .3) +
+  geom_boxplot( alpha = .5,color = 'purple')+
+  stat_summary(fun.y = "mean", geom = "point", color = "darkblue", 
+               shape = 4, size = 4) +
+  labs(x= 'Quality (score between 3 and 9)',
+       y= 'Volatile Acidity (g/dm³)',
+       title= 'Volatile Acidity Vs. Quality')
 ```
 
 ### Description Two
-In my opinion, this pairplot summarises the main aspects of the dataset I have 
-worked with. From the univariate analysis I was able to identify the most
-relevant one and then to get an overview of the data by them. The diagonal
-presents the univariate distribution and upper it we have the correlation values
-among the attributes. It is the indispensable starting point for any EDA.  
-
+Through this boxplot I was able to identify the second most important attribute
+in this dataset in relation to the quality score. Unlike *alcohol*, the 
+volatile acidity is negatively correlated to the wine quality, which is easy 
+to perceive through the mean calculated for each quality level and represented
+by an 'X'. 
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
