@@ -368,33 +368,64 @@ to check how they relate to each other:
   
 
 ## 3. Bivariate Analysis  
-In this section we will explore the relationships among all variables in the 
-dataset, directing the analysis to those that have seemed to be more relevant
-from the univariate analysis. We start this by calculating the correlation 
-among all the attributes: 
+In this section we will start exploring the relationships among all variables in
+our dataset, directing the analysis to find out which attributes are mainly 
+related to our target variable: the quality score. We start now by calculating 
+the correlation among all the attributes: 
 
 ```{r echo=FALSE, bivariate.correlation}
 ## Reference: https://briatte.github.io/ggcorr/#controlling-the-main-geometry
 ggcorr(wines[,2:13], geom = "blank", label = TRUE, 
        hjust = 0.9, layout.exp = 2) +
   geom_point(size = 8, aes(color = coefficient > 0, 
-                           alpha = abs(coefficient) > 0.4)) +
+                           alpha = abs(coefficient) > 0.35)) +
   scale_alpha_manual(values = c("TRUE" = 0.25, "FALSE" = 0)) +
   guides(color = FALSE, alpha = FALSE)
 ```
 
-From the correlation matrix we notice the only relevant attribute to quality is
-the percentage of alcohol. There are some relevant correlation among other 
-variables as well, but they don't contribute to the target variable that we 
-are interested in. Anyway, let's keep looking deeper to this data plotting some
-scatterplot pairs considering only the attributes we found relevant in the 
-univariate section:  
+From the correlation matrix we notice the only relevant attributes to quality 
+are (i) the percentage of alcohol and (ii) the volatile acidity. There are some 
+relevant correlation among other variables as well, and even though they don't 
+contribute explicitly to the target variable we are interested in, it will be 
+insteresting to take a look on them and find out some new information or 
+insights.  
+
+In order to select which of them we will work with, we should analyze the matrix 
+above considering the previous univariate analysis for each attribute. In this 
+case, we can draw the following assumptions:  
+
+* The wine **quality** is positively correlated to **alcohol** and negatively 
+correlated to the **volatile acidity**. It does make sence with our previous
+findings, since the volatile acidity is responsible for an unpleasent taste in 
+the wine.  
+
+* It is quite obvious that the pH attribute is negatively correlated to acidity,
+since the lower values in the pH scale means the higher acidity. Since it is a 
+well-known fact, there is no sense to explore these relationships here.  
+
+* There seems to be some correlation between sulphates and chlorides. However, 
+none of them presents a relevant correlation with quality. Furthermore, from the
+foregoing description it is possible to infer that both attributes are derived 
+from the same mineral, so that we will not consider these attributes in the next
+analysis.  
+
+* It is interesting to observe there are some relationship between **density** 
+and other attributes such as **alcohol**, **residual sugar**, **citric acid**, 
+and **fixed acidity**.  
+
+* It also seems to be evident that the free and total forms of sulfur dioxide
+will be related to each other. The same stands for the different acidity types. 
+Regarding this last, in order to simplify this analysis, we will now consider 
+only the **volatile acidity**  due to its impact on quality levels.  
+
+Based on this, our next task is to create some pairplots relating all these 
+chosen attributes: 
 
 ```{r echo=FALSE, bivariate.overview}
-theme_set(theme_minimal())
+theme_set(theme_minimal(10))
 ## Defining the variables we will explore:
-variables <- c('alcohol','pH','density','chlorides',
-               'volatile.acidity','quality')
+variables <- c('quality', 'alcohol','volatile.acidity',
+               'density', 'residual.sugar')
 
 ## Plotting ggpairs for the selected attributed:
 ggpairs(wines[variables], aes(alpha=0.3))
@@ -404,31 +435,28 @@ ggpairs(wines[variables], aes(alpha=0.3))
 #   lower = list(continuous=wrap("points", position="jitter")))
 ```
 
-The pair plots above summarize all the information we have gotten until now:  
-- The unbalanced distribution of quality, ie, there are more wines classified as 
-5 or 6 than those below and above these values.  
-- Quality is negatively correlated to the volatile acidity.  
-- Quality is positively correlated to the alcohol percentage.  
-- Other attributes that present some correlations are pH, density and chlorides, 
-although not strong ones.  
+These pairplots above summarize most of the information we have gotten until 
+now, as for example the unbalanced distribution of quality -- ie, there are more
+wines scored as 5 or 6 than those below and above these values. 
 
 
-### Alcohol Vs. Quality
-In our analysis this is the relationship that seems to be the most relevant so
-far. My first idea was to plot a scatter plot with a smooth line to analyze it
-deeply. However, this type of visualization is not appropriate when one of the 
-features on the chart is categorical or discrete, as is the case of *quality*.
-A boxplot, though, brings so much more information in this case:  
+### Correlations to quality
+Accordingly to the correlation matrix, *alcohol* and *volatile acidity* are the
+attributes with the most relevant relationship to *quality*. My first idea was 
+to create a scatter plot with a smooth line to analyze it deeply. However, this 
+type of visualization is not appropriate when one of the features on the chart 
+is categorical or discrete, as is the case of *quality*. A boxplot, though, 
+brings so much more information, as follow:  
 
 ```{r echo=FALSE, bivariate.alcohol-quality.boxplot}
-ggplot(aes(factor(quality), alcohol), data = wines) +
+ggplot(aes(x= factor(quality), y= alcohol), data = wines) +
   geom_jitter( alpha = .3) +
   geom_boxplot( alpha = .5,color = 'blue')+
-  stat_summary(fun.y = "mean", 
-               geom = "point", 
-               color = "red", 
-               shape = 8, 
-               size = 4)
+  stat_summary(fun.y = "mean", geom = "point", color = "red", 
+               shape = 16, size = 4) +
+  labs(x= 'Quality (score between 3 and 9)',
+       y= 'Alcohol (% by volume)',
+       title= 'Alcohol Vs. Quality')
 ```
 
 As it was expected to, there is some correlation between the alcohol percentage 
@@ -467,48 +495,53 @@ radarchart(alcohol_quality, axistype=1, calcex = 0.8, vlcex=0.9,
 ```
 
 From the chart above it becomes really clear that the wines assigned with a 
-better quality in average have higher alcohol percentages. 
+better quality in average have higher alcohol percentages.  
 
-### pH Vs. Density
+The next chart tries 
 
+```{r echo=FALSE, bivariate.volatile-quality.boxplot}
+ggplot(aes(x= factor(quality), y= volatile.acidity), data = wines) +
+  geom_jitter( alpha = .3) +
+  geom_boxplot( alpha = .5,color = 'purple')+
+  stat_summary(fun.y = "mean", geom = "point", color = "red", 
+               shape = 16, size = 4) +
+  labs(x= 'Quality (score between 3 and 9)',
+       y= 'Volatile acidity (g/dm³)',
+       title= 'Volatile acidity Vs. Quality')
+```
+
+From the boxplots related to the quality attribute we can notice there are three
+main categories of quality we could define: low, equivalent to the scores 3 and
+4, medium, equivalent to the scores 5 and 6, and high, equivalent to the socres
+7 and 8. We also can notice that the volatile acidity is negatively correlated 
+to quality. 
+
+
+### Other correlations
+Following I try to explore other relationships among our selected variables. The
+results are quite similar to those found on the pairplots, besides now with a 
+better resolution and a smooth line that allows us to comprehend how this 
+correlation would be for different numerical values. 
+
+#### Alcohol Vs. Density
 ```{r bivariate.ph-density, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
-ggplot(aes(x = pH, y = density), data = wines) + 
+ggplot(aes(y = alcohol, x = density), data = wines) + 
   geom_point(alpha = 0.35, pch = 1) + 
   geom_smooth(method = loess) + 
-  facet_wrap( ~ quality) 
+  labs(y= 'Alcohol (% by volume)',
+       x= 'Density (mg/dm³)',
+       title= 'Relationship of Alcohol Vs. Density')
 ```
 
-From the scatterplots above we can see a weak negative correlation between 
-density and pH, ie, the higher the pH the lower the density. Beyond this there 
-is no other relevant information from these graphs, since the correlation is 
-somehow equivalent for all levels of quality.  
-
-A future research may include the pH and density corresponding to the main 
-hydrographic basins of the regions where the wines are produced, also 
-associating these attributes with the "body" perception.
-
-
-### Sulfur Dioxide Vs. Chlorides
-
-```{r bivariate.sulfur-chlorides, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
-ggplot(aes(x = total.sulfur.dioxide, y = chlorides), data = wines) + 
-  geom_point(alpha = 0.35, pch = 1) + 
+#### Residual sugar Vs. Density
+```{r bivariate.ph-density, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+ggplot(aes(y = residual.sugar, x = density), data = wines) + 
+  geom_point(alpha = 0.4, pch = 1) + 
   geom_smooth(method = loess) + 
-  scale_x_log10() + 
-  #xlim(0,100) +
-  facet_wrap( ~ quality)
+  labs(y= 'Residual sugar (g/dm³)',
+       x= 'Density (mg/dm³)',
+       title= 'Relationship of Residual sugar Vs. Density')
 ```
-
-To analyse these attributes I choosed the total sulfur dioxide, since we have 
-found before the free sulfur dioxide distribution has the same shape. Taking a 
-look at the figure, specifically in chart 7, we can notice an outlier measure 
-of sulfur dioxide around $300 mg/{dm}~3$. In order to avoid it impacting the 
-charts I chose to apply the logarithm, although I could also just adjust the 
-limits of the x-axis. 
-
-Regarding the interpretation of the graph, it becomes evident that there is no 
-correlation between these two variables, which was also shown on our first
-correlation matrix. 
 
 
 ## 4. Multivariate Analysis
@@ -659,8 +692,9 @@ Some questions aroused from this EDA that may be explored on future
 researches:  
 
 * What is the winery of each evaluated wine? The reason to include such 
-information is to correlate the wine density with the water density of the 
-watersheds from the production region.  
+information is to correlate the wine density with the water density and pH of 
+the main hydrographic basins of the regions where the wines are produced, also 
+associating these attributes with the "body" perception.  
 
 * Using this same dataset, it would be interesting to improve the linear model 
 by changing the approach to select the training data. From EDA we know the 
